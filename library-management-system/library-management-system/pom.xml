@@ -4,8 +4,15 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>sit.tuvarna</groupId>
   <artifactId>library-management-system</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <properties>
+    <packaging>pom</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <modules>
+        <module>books</module>
+        <module>books-jwt</module>
+        <module>utils</module>
+        <module>users</module>
+    </modules>
+    <properties>
     <compiler-plugin.version>3.12.1</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
