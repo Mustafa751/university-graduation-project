@@ -9,14 +9,14 @@ import {
 } from "@chakra-ui/react";
 
 interface FormData {
-  invoiceNumber: string;
-  personalId: string;
+  fakNumber: string;
+  egn: string;
 }
 
 function MyForm() {
   const [formData, setFormData] = useState<FormData>({
-    invoiceNumber: "",
-    personalId: "",
+    fakNumber: "",
+    egn: "",
   });
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -53,12 +53,12 @@ function MyForm() {
           Вход
         </Heading>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-          <FormControl id="invoiceNumber" isRequired mt="4">
+          <FormControl id="fakNumber" isRequired mt="4">
             <FormLabel>Фак Номер</FormLabel>
             <Input
               type="text"
-              name="invoiceNumber"
-              value={formData.invoiceNumber}
+              name="fakNumber"
+              value={formData.fakNumber}
               onChange={handleInputChange}
               placeholder="Фак Номер"
               variant="filled"
@@ -68,12 +68,12 @@ function MyForm() {
               mb="4"
             />
           </FormControl>
-          <FormControl id="personalId" isRequired>
+          <FormControl id="egn" isRequired>
             <FormLabel>ЕГН</FormLabel>
             <Input
               type="text"
-              name="personalId"
-              value={formData.personalId}
+              name="egn"
+              value={formData.egn}
               onChange={handleInputChange}
               placeholder="ЕГН"
               variant="filled"
