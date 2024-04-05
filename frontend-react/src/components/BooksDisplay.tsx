@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
+  InputGroup,
+  InputRightElement,
   Flex,
   Heading,
   SimpleGrid,
@@ -9,6 +11,7 @@ import {
   Spinner,
   Input,
 } from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
 import { debounce } from "lodash";
 
 interface ApiResponseItem {
@@ -40,15 +43,15 @@ function Book({ title, count, imageUrl }: BookData) {
 
 function BooksDisplay() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [allBooks, setAllBooks] = useState<BookData[]>([]);
-  const [displayCount, setDisplayCount] = useState<number>(10);
-  const [displayBooks, setDisplayBooks] = useState<BookData[]>([]);
+  const [books, setBooks] = useState<BookData[]>([]);
   const [page, setPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<BookData[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const observer = useRef<IntersectionObserver>();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const fetchBooks = useCallback((page: number) => {
+  const fetchBooks = useCallback(() => {
     setLoading(true);
     fetch(`https://jsonplaceholder.typicode.com/photos?_page=${page}&_limit=10`)
       .then((response) => response.json())
@@ -59,74 +62,71 @@ function BooksDisplay() {
           count: Math.floor(Math.random() * 1000),
           imageUrl: item.url,
         }));
-        setAllBooks((prevBooks) => [...prevBooks, ...newBooks]);
+        setBooks((prevBooks) => [...prevBooks, ...newBooks]);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
         setLoading(false);
       });
-  }, []);
+  }, [page]);
 
   useEffect(() => {
-    fetchBooks(page);
-  }, [page, fetchBooks]);
-
-  useEffect(() => {
-    setDisplayBooks(allBooks.slice(0, displayCount));
-  }, [allBooks, displayCount]);
+    fetchBooks();
+  }, [fetchBooks]);
 
   const debouncedSearch = useCallback(
-    debounce((search) => {
-      const filtered = allBooks.filter((book) =>
-        book.title.toLowerCase().includes(search.toLowerCase())
+    debounce((query) => {
+      const filtered = books.filter((book) =>
+        book.title.toLowerCase().includes(query.toLowerCase())
       );
-      setDisplayBooks(filtered);
+      setSearchResults(filtered);
+      setIsSearching(true);
     }, 300),
-    [allBooks]
+    [books]
   );
 
   useEffect(() => {
-    if (searchTerm.length >= 3) {
+    if (searchTerm) {
       debouncedSearch(searchTerm);
-    } else if (searchTerm.length === 0) {
-      setDisplayBooks(allBooks.slice(0, displayCount));
+    } else {
+      setIsSearching(false);
     }
-  }, [searchTerm, debouncedSearch, allBooks, displayCount]);
+  }, [searchTerm, debouncedSearch]);
 
   useEffect(() => {
     if (observer.current) {
       observer.current.disconnect();
     }
-  
+
     observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !loading) {
-        if (allBooks.length === displayCount) {
-          setPage((prevPage) => prevPage + 1); // Fetch more books if needed
-        } else {
-          setDisplayCount((prevCount) => prevCount + 10); // Just display more books if we have them
-        }
+        setPage((prevPage) => prevPage + 1);
       }
     });
-  
+
     if (sentinelRef.current) {
       observer.current.observe(sentinelRef.current);
     }
-  
+
     return () => observer.current?.disconnect();
-  }, [loading, allBooks.length, displayCount]);
+  }, [loading]);
 
   return (
     <Flex direction="column" align="center" minH="100vh" p="4">
       <Heading as="h1" size="xl" color="teal.500" mb="4">
         Dashboard
       </Heading>
-      <Input
-        placeholder="Search by title..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        mb="4"
-      />
+      <Flex justify="flex-end" width="100%" paddingRight="4" paddingBottom="4">
+        <InputGroup width="300px">
+          <Input
+            placeholder="Search by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <InputRightElement children={<SearchIcon color="gray.500" />} />
+        </InputGroup>
+      </Flex>
       <Flex
         direction="column"
         align="center"
@@ -140,7 +140,7 @@ function BooksDisplay() {
         overflowY="auto"
       >
         <SimpleGrid columns={4} spacing={4}>
-          {displayBooks.map((book, index) => (
+          {(isSearching ? searchResults : books).map((book, index) => (
             <Book key={`${book.id}-${index}`} {...book} />
           ))}
         </SimpleGrid>
