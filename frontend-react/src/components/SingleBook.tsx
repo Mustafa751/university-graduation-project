@@ -1,5 +1,4 @@
 import {
-  ChakraProvider,
   Box,
   Flex,
   Heading,
@@ -7,19 +6,23 @@ import {
   Image,
   IconButton,
   Text,
-  Grid,
-  GridItem,
   Button,
+  SimpleGrid,
+  GridItem,
+  useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 interface BookData {
   isbn: string;
   author: string;
   productionDate: string;
   quantity: number;
-  description: string; // Added description field to the interface
+  description: string;
   images: string[];
 }
 
@@ -39,124 +42,112 @@ const dummyBookData: BookData = {
 
 function BookDetails({ bookData }: { bookData: BookData }) {
   return (
-    <VStack align="start" spacing="4" fontSize="xl">
-      <Heading as="h2" size="lg">
+    <VStack align="start" spacing="4" fontSize="lg">
+      <Heading as="h2" size="lg" color="teal.500">
         Book Details
       </Heading>
-      <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+      <SimpleGrid columns={2} spacingX="40px" spacingY="20px" w="100%">
         <GridItem>
-          <Text>
-            <strong>ISBN:</strong> {bookData.isbn}
-          </Text>
-          <Text>
-            <strong>Author:</strong> {bookData.author}
-          </Text>
-          <Text>
-            <strong>Production Date:</strong> {bookData.productionDate}
-          </Text>
-          <Text>
-            <strong>Quantity:</strong> {bookData.quantity}
-          </Text>
+          <Text fontWeight="bold">ISBN:</Text>
+          <Text>{bookData.isbn}</Text>
         </GridItem>
-        <GridItem colSpan={2}>
-          <Text>
-            <strong>Description:</strong> {bookData.description}
-          </Text>
-          <Button colorScheme="teal" variant="solid">
-            Download
-          </Button>
+        <GridItem>
+          <Text fontWeight="bold">Author:</Text>
+          <Text>{bookData.author}</Text>
         </GridItem>
-      </Grid>
+        <GridItem>
+          <Text fontWeight="bold">Production Date:</Text>
+          <Text>{bookData.productionDate}</Text>
+        </GridItem>
+        <GridItem>
+          <Text fontWeight="bold">Quantity:</Text>
+          <Text>{bookData.quantity}</Text>
+        </GridItem>
+      </SimpleGrid>
+      <Text fontWeight="bold">Description:</Text>
+      <Text>{bookData.description}</Text>
+      <Button colorScheme="teal" variant="solid" w="100%">
+        Download
+      </Button>
     </VStack>
   );
 }
-function Navbar() {
-  return (
-    <Flex justify="space-between" p="4" bg="teal.500" color="white" mb="4">
-      <Heading as="h1" size="lg">
-        Navbar
-      </Heading>
-    </Flex>
-  );
-}
 
-function Footer() {
-  return (
-    <Flex
-      justify="center"
-      p="4"
-      bg="teal.500"
-      color="white"
-      position="fixed"
-      bottom="0"
-      width="100%"
-    >
-      <Heading as="h6" size="sm">
-        Footer
-      </Heading>
-    </Flex>
-  );
-}
-
-function App() {
+function SingleBook() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Ensure the nextImage and prevImage functions correctly update the state
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === dummyBookData.images.length - 1 ? 0 : prevIndex + 1
+    setCurrentImageIndex(
+      (prevIndex) => (prevIndex + 1) % dummyBookData.images.length
     );
   };
 
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? dummyBookData.images.length - 1 : prevIndex - 1
-    );
+    setCurrentImageIndex((prevIndex) => {
+      return prevIndex === 0 ? dummyBookData.images.length - 1 : prevIndex - 1;
+    });
   };
 
+  const imageSize = useBreakpointValue({ base: "100%", md: "300px" });
+
+  // Color mode value for hover effects
+  const hoverBgColor = useColorModeValue("gray.100", "gray.700");
+
   return (
-    <ChakraProvider>
-      <Box minHeight="100vh" display="flex" flexDirection="column">
-        <Navbar />
-        <Flex
-          direction="row"
-          align="center"
-          justify="center"
-          p="4"
-          maxW="800px"
-          mx="auto"
-          flex="1"
-          mb="30vh" // Move content further up
-          ml="20%" // Move content to the left
-        >
+    <Box minHeight="100vh" display="flex" flexDirection="column">
+      <Navbar />
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        align="center"
+        justify="center"
+        p={4}
+        maxW="1200px" // Adjust for a wider max width
+        mx="auto"
+        flex="1"
+        mb="10vh"
+        gap={4} // Added gap for spacing between elements
+      >
+        {/* Image carousel container */}
+        <Flex align="center" justify="center" position="relative">
           <IconButton
             aria-label="Previous image"
             icon={<ChevronLeftIcon />}
             onClick={prevImage}
-            alignSelf="center"
-            mr="4"
+            position="absolute"
+            left={0}
+            zIndex="2"
+            variant="ghost"
+            // Added hover effect
+            _hover={{ bg: hoverBgColor }}
           />
           <Image
             src={dummyBookData.images[currentImageIndex]}
-            mb="2"
-            maxW="900px" // Make the image three times bigger
-            maxH="900px" // Make the image three times bigger
+            boxSize={imageSize}
             objectFit="cover"
+            boxShadow="lg" // Enhanced shadow for depth
+            borderRadius="lg" // Rounded corners
+            m={2}
           />
           <IconButton
             aria-label="Next image"
             icon={<ChevronRightIcon />}
             onClick={nextImage}
-            alignSelf="center"
-            ml="4"
+            position="absolute"
+            right={0}
+            zIndex="2"
+            variant="ghost"
+            // Added hover effect
+            _hover={{ bg: hoverBgColor }}
           />
-          <Box ml="8" fontSize="2xl">
-            <BookDetails bookData={dummyBookData} />
-          </Box>
         </Flex>
-        <Footer />
-      </Box>
-    </ChakraProvider>
+        <Box flexGrow={1} ml={{ md: "8" }} mt={{ base: "4", md: "0" }}>
+          <BookDetails bookData={dummyBookData} />
+        </Box>
+      </Flex>
+      <Footer />
+    </Box>
   );
 }
 
-export default App;
+export default SingleBook;
