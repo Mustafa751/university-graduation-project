@@ -44,11 +44,11 @@ const App = () => {
       .catch((error) => console.log(error));
   };
 
-  function handleImageUpload(event: ChangeEvent<HTMLInputElement>): void {
+  function handleImageUpload(_event: ChangeEvent<HTMLInputElement>): void {
     throw new Error("Function not implemented.");
   }
 
-  function handlePdfUpload(event: ChangeEvent<HTMLInputElement>): void {
+  function handlePdfUpload(_event: ChangeEvent<HTMLInputElement>): void {
     throw new Error("Function not implemented.");
   }
 

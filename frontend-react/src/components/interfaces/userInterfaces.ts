@@ -18,4 +18,11 @@ export interface User {
     username: string;
     facultyNumber: string;
   }
+
+  export interface AdminPanelProps {
+    id: number;
+  username: string;
+  email: string;
+  facultyNumber: string;
+  }
   
