@@ -14,8 +14,8 @@ import {
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useState } from "react";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import Navbar from "../common/Navbar";
+import Footer from "../common/Footer";
 
 interface BookData {
   isbn: string;

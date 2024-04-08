@@ -1,6 +1,6 @@
-import BooksDisplay from "./BooksDisplay";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
+import BooksDisplay from "../books/BooksDisplay";
+import Navbar from "../common/Navbar";
+import Footer from "../common/Footer";
 
 function Dashboard() {
   return (

@@ -6,7 +6,7 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { FiUser, FiSun, FiMoon } from "react-icons/fi";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../auth/AuthContext";
 import { useTranslation } from "react-i18next";
 
 function Navbar() {
