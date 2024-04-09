@@ -1,23 +1,30 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { ChangeEvent, useState } from "react";
+// Import React, useState, and Chakra UI components
+import React, { ChangeEvent, useState } from "react";
 import {
-  ChakraProvider,
-  Box,
+  Text,
   FormControl,
   FormLabel,
   Input,
   Button,
+  VStack,
+  Flex,
+  Box,
+  useColorModeValue,
 } from "@chakra-ui/react";
+import Navbar from "../common/Navbar"; // Adjust the import path as needed
+import Footer from "../common/Footer"; // Adjust the import path as needed
 
-const App = () => {
-  const [isbn, setIsbn] = useState("");
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [author, setAuthor] = useState("");
-  const [description, setDescription] = useState("");
+const AddBook = () => {
+  // State hooks for form fields
+  const [isbn, setIsbn] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [author, setAuthor] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
   const [images, setImages] = useState<FileList | null>(null);
   const [pdf, setPdf] = useState<File | null>(null);
 
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
@@ -35,70 +42,118 @@ const App = () => {
       formData.append("pdf", pdf);
     }
 
-    fetch("http://localhost:4000/books", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error));
+    // Placeholder for where you would send formData to the server
+    console.log("Form Data Submitted", formData);
   };
 
-  function handleImageUpload(_event: ChangeEvent<HTMLInputElement>): void {
-    throw new Error("Function not implemented.");
-  }
+  // Handle image file upload
+  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>): void => {
+    if (event.target.files) {
+      setImages(event.target.files);
+    }
+  };
 
-  function handlePdfUpload(_event: ChangeEvent<HTMLInputElement>): void {
-    throw new Error("Function not implemented.");
-  }
+  // Handle PDF file upload
+  const handlePdfUpload = (event: ChangeEvent<HTMLInputElement>): void => {
+    if (event.target.files && event.target.files[0]) {
+      setPdf(event.target.files[0]);
+    }
+  };
+
+  const formBgColor = useColorModeValue("gray.50", "gray.700");
+  const inputBgColor = useColorModeValue("white", "gray.800");
 
   return (
-    <ChakraProvider>
-      <Box maxW="md" mx="auto" mt={8} p={4} borderWidth="1px" borderRadius="lg">
-        <form onSubmit={handleSubmit}>
-          <FormControl>
-            <FormLabel>ISBN</FormLabel>
-            <Input value={isbn} onChange={(e) => setIsbn(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Title</FormLabel>
-            <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Date of Production</FormLabel>
-            <Input value={date} onChange={(e) => setDate(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Author</FormLabel>
-            <Input value={author} onChange={(e) => setAuthor(e.target.value)} />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Description</FormLabel>
-            <Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Images</FormLabel>
-            <Input
-              type="file"
-              multiple
-              onChange={handleImageUpload}
-              accept="image/*"
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>PDF</FormLabel>
-            <Input type="file" onChange={handlePdfUpload} accept=".pdf" />
-          </FormControl>
-          <Button type="submit" mt={4} colorScheme="blue">
-            Submit
-          </Button>
-        </form>
-      </Box>
-    </ChakraProvider>
+    <Flex direction="column" minHeight="100vh">
+      <Navbar />
+      <Flex direction="column" align="center" justify="center" flex="1" pt={10}>
+        <Text fontSize="2xl" fontWeight="bold" mb={5}>
+          Add a New Book
+        </Text>
+        <Box
+          as="form"
+          onSubmit={handleSubmit}
+          bg={formBgColor}
+          p={8}
+          borderRadius="lg"
+          boxShadow="xl"
+          width={{ base: "90%", md: "500px" }}
+          mb={10} // Adjust as needed to manage the space
+        >
+          <VStack spacing={4}>
+            <FormControl isRequired>
+              <FormLabel htmlFor="isbn">ISBN</FormLabel>
+              <Input
+                id="isbn"
+                value={isbn}
+                onChange={(e) => setIsbn(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="title">Title</FormLabel>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="date">Date of Production</FormLabel>
+              <Input
+                id="date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="author">Author</FormLabel>
+              <Input
+                id="author"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="description">Description</FormLabel>
+              <Input
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="images">Images</FormLabel>
+              <Input
+                id="images"
+                type="file"
+                multiple
+                onChange={handleImageUpload}
+                accept="image/*"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="pdf">PDF</FormLabel>
+              <Input
+                id="pdf"
+                type="file"
+                onChange={handlePdfUpload}
+                accept=".pdf"
+              />
+            </FormControl>
+            <Button type="submit" colorScheme="teal" width="full" mt={4}>
+              Submit
+            </Button>
+          </VStack>
+        </Box>
+      </Flex>
+      <Footer />
+    </Flex>
   );
 };
-
-export default App;
+export default AddBook;
