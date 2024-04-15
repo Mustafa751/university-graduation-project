@@ -7,17 +7,13 @@ import {
   Button,
   Heading,
 } from "@chakra-ui/react";
+import { useAuth } from "../auth/AuthContext"; // Make sure this path matches your file structure
+import { useNavigate } from "react-router-dom";
 
-interface FormData {
-  fakNumber: string;
-  egn: string;
-}
-
-function MyForm() {
-  const [formData, setFormData] = useState<FormData>({
-    fakNumber: "",
-    egn: "",
-  });
+function LoginForm() {
+  const [formData, setFormData] = useState({ fakNumber: "", egn: "" });
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,9 +22,16 @@ function MyForm() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData);
+    login(formData.fakNumber, formData.egn)
+      .then(() => {
+        navigate("/dashboard");
+      })
+      .catch((error: string) => {
+        // Properly type the error
+        console.error("Login failed:", error);
+        alert(error); // Display error message to the user
+      });
   };
-
   return (
     <Flex
       direction="column"
@@ -94,4 +97,4 @@ function MyForm() {
   );
 }
 
-export default MyForm;
+export default LoginForm;

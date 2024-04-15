@@ -25,4 +25,11 @@ export interface User {
   email: string;
   facultyNumber: string;
   }
+
+  export interface AuthContextType {
+    isLoggedIn: boolean;
+    userRole: string | null; // Added userRole to context
+    login: (username: string, password: string) => Promise<void>; 
+    logout: () => void;
+  }
   
