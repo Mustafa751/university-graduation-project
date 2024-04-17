@@ -13,9 +13,10 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../common/Navbar";
 import Footer from "../common/Footer";
+import { useParams } from "react-router-dom";
 
 interface BookData {
   isbn: string;
@@ -76,6 +77,33 @@ function BookDetails({ bookData }: { bookData: BookData }) {
 function SingleBook() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  const { id } = useParams(); // Get the book id from the URL
+  const [bookData, setBookData] = useState(null);
+
+  const imageSize = useBreakpointValue({ base: "100%", md: "300px" });
+
+  // Color mode value for hover effects
+  const hoverBgColor = useColorModeValue("gray.100", "gray.700");
+  useEffect(() => {
+    // Fetch book data using the ID
+    fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        // Transform data into your expected format or set directly
+        setBookData({
+          ...data,
+          isbn: data.id.toString(),
+          author: "Author Name",
+          productionDate: "Date",
+          quantity: 1,
+          description: data.title,
+          images: [data.url],
+        });
+      });
+  }, [id]);
+
+  if (!bookData) return <div>Loading...</div>;
+
   // Ensure the nextImage and prevImage functions correctly update the state
   const nextImage = () => {
     setCurrentImageIndex(
@@ -88,11 +116,6 @@ function SingleBook() {
       return prevIndex === 0 ? dummyBookData.images.length - 1 : prevIndex - 1;
     });
   };
-
-  const imageSize = useBreakpointValue({ base: "100%", md: "300px" });
-
-  // Color mode value for hover effects
-  const hoverBgColor = useColorModeValue("gray.100", "gray.700");
 
   return (
     <Box minHeight="100vh" display="flex" flexDirection="column">

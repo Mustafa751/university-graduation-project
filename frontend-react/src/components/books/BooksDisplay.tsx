@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { debounce } from "lodash";
+import { useNavigate } from "react-router-dom";
 
 interface ApiResponseItem {
   albumId: number;
@@ -29,9 +30,18 @@ interface BookData {
   imageUrl: string;
 }
 
-function Book({ title, count, imageUrl }: BookData) {
+function Book({ id, title, count, imageUrl }: BookData) {
+  const navigate = useNavigate(); // Hook for navigation
+
   return (
-    <Box p="4" borderWidth="1px" borderRadius="lg" overflow="hidden">
+    <Box
+      p="4"
+      borderWidth="1px"
+      borderRadius="lg"
+      overflow="hidden"
+      cursor="pointer"
+      onClick={() => navigate(`/book/${id}`)} // Navigate to the SingleBook component on click
+    >
       <Image src={imageUrl} alt={title} />
       <Text mt="2" fontWeight="semibold">
         {title}
