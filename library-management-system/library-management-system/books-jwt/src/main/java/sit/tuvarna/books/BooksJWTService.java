@@ -12,7 +12,7 @@ public class BooksJWTService {
 
     public String generateJwt() {
         Set<String> roles = new HashSet<>(
-                Arrays.asList("writer")
+                Arrays.asList("writer", "admin")
         );
         return Jwt.issuer("books-jwt")
                 .subject("books-jwt")

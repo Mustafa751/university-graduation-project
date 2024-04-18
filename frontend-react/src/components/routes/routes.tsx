@@ -12,13 +12,12 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Login />} />
     <Route path="/login" element={<Login />} />
+    <Route path="/admin-panel" element={<AdminPanel />} />
+    <Route path="/user-details" element={<UserDetails />} />
     <Route path="/user-info" element={<UserDetails />} />
     <Route path="/register" element={<Register />} />
     <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
-    <Route
-      path="/book/:id"
-      element={<ProtectedRoute element={SingleBook} />}
-    />
+    <Route path="/book/:id" element={<ProtectedRoute element={SingleBook} />} />
     <Route
       path="/admin-panel"
       element={<ProtectedRoute element={AdminPanel} />}

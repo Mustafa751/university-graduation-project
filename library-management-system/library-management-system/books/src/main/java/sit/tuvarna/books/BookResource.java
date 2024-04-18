@@ -28,9 +28,7 @@ public class BookResource {
     @RolesAllowed("admin")
     @DELETE
     public Response deleteBook(@PathParam("id")  Long id){
-        books.stream().filter(book -> book.getId().equals(id))
-                .findFirst()
-                .ifPresent(book -> books.remove(book));
-        return Response.noContent().build();
+        books.removeIf(book -> book.id.equals(id));
+        return Response.ok(books).build();
     }
 }

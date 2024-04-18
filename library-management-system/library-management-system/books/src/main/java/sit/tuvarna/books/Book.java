@@ -1,32 +1,42 @@
 package sit.tuvarna.books;
 
-public class Book {
 
-    private Long id;
-    private String name;
-    private int quantity;
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import jakarta.persistence.*;
+import sit.tuvarna.images.Image;
 
-    public Long getId() {
-        return id;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+public class Book extends PanacheEntity {
+
+    public String name;
+    public int quantity;
+    public String isbn;
+    public String author;
+
+    @Temporal(TemporalType.DATE)
+    public Date productionDate;
+
+    @Column(length = 2000)
+    public String description;
+
+    @Lob
+    public byte[] mainImage; // For storing the main image as a binary large object
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Image> images;
+
+    // Constructors, getters, and setters for images
+    public Book() {
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public List<Image> getImages() {
+        return images;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }

@@ -16,9 +16,10 @@ public class BooksJWTResource {
     BooksJWTService booksJWTService;
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getJwt() {
         String jwt = booksJWTService.generateJwt();
-        return Response.ok(jwt).build();
+        JwtResponse jwtResponse = new JwtResponse(jwt);
+        return Response.ok(jwtResponse).build();
     }
 }
