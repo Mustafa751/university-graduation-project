@@ -7,6 +7,7 @@ import Register from "../auth/Register";
 import ProtectedRoute from "./protectedRoutes";
 import UserDetails from "../user/UserDetails";
 import SingleBook from "../books/SingleBook";
+import UserToBeCreatedPage from "../user/UserToBeCreatedPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -16,6 +17,7 @@ const AppRoutes = () => (
     <Route path="/user-details" element={<UserDetails />} />
     <Route path="/user-info" element={<UserDetails />} />
     <Route path="/register" element={<Register />} />
+    <Route path="/usersToBeCreated" element={<UserToBeCreatedPage />} />
     <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
     <Route path="/book/:id" element={<ProtectedRoute element={SingleBook} />} />
     <Route

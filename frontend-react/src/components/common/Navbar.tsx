@@ -61,6 +61,13 @@ function Navbar() {
             >
               Dashboard
             </Button>
+            <Button
+              mr="2"
+              colorScheme="teal"
+              onClick={() => navigate("/usersToBeCreated")}
+            >
+              UsersToBeCreated
+            </Button>
             {userRole === "admin" && (
               <Button
                 mr="2"

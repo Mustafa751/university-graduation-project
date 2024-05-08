@@ -11,6 +11,7 @@
         <module>books-jwt</module>
         <module>utils</module>
         <module>users</module>
+      <module>core</module>
     </modules>
     <properties>
     <compiler-plugin.version>3.12.1</compiler-plugin.version>

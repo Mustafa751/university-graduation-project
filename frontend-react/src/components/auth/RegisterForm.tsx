@@ -15,6 +15,7 @@ interface FormData {
   fakNumber: string;
   egn: string;
   email: string;
+  phoneNumber: string;
 }
 
 const RegisterForm: React.FC = () => {
@@ -23,6 +24,14 @@ const RegisterForm: React.FC = () => {
     fakNumber: "",
     egn: "",
     email: "",
+    phoneNumber: "",
+  });
+
+  const [validity, setValidity] = useState({
+    fakNumber: true,
+    egn: true,
+    email: true,
+    phoneNumber: true,
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,47 +41,55 @@ const RegisterForm: React.FC = () => {
   };
 
   const validateInput = (name: string, value: string) => {
-    // Basic validation for demonstration purposes
-    let isValid = true; // Assuming all inputs are initially valid
-
-    // You can add more specific validation rules here based on the input name
-    if (name === "invoiceNumber") {
-      isValid = /^[0-9]{8}$/.test(value);
-    } else if (name === "personalId") {
-      isValid = /^[0-9]{10}$/.test(value);
+    let isValid = true;
+    if (name === "fakNumber") {
+      isValid = /^\d+$/.test(value); // Simple numeric validation
+    } else if (name === "egn") {
+      isValid = true; // EGN should be 10 digits
     } else if (name === "email") {
-      isValid = /\S+@\S+\.\S+/.test(value);
+      isValid = /\S+@\S+\.\S+/.test(value); // Simple email format check
+    } else if (name === "phoneNumber") {
+      isValid = /^\d+$/.test(value); // Simple numeric validation
     }
-
-    // Set the validity state for the input
-    // For simplicity, assuming all inputs are valid initially
     setValidity({ ...validity, [name]: isValid });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const isFormValid = () => {
+    return Object.values(validity).every((value) => value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Check if any field is left empty
-    for (const field in formData) {
-      if (!formData[field as keyof FormData]) {
-        alert("Please fill out all fields");
-        return;
+    if (!isFormValid()) {
+      alert("Please ensure all fields are correctly filled and valid.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8089/api/usersCreate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("User created successfully");
+        alert("User created successfully");
+      } else {
+        throw new Error("Something went wrong with the request");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert("Failed to create user: " + error.message);
+        console.error("Failed to create user:", error);
+      } else {
+        console.error("An unexpected error occurred:", error);
+        alert("An unexpected error occurred");
       }
     }
-    // Here you can handle form submission, for example, send the data to an API
-    console.log(formData);
   };
-
-  const isFormValid = () => {
-    // Check if all fields are valid based on the validity object
-    // For simplicity, assuming all fields are valid initially
-    return Object.values(validity).every((value) => value === true);
-  };
-
-  const [validity, setValidity] = useState({
-    invoiceNumber: false,
-    personalId: false,
-    email: false,
-  });
 
   return (
     <Flex direction="column" align="center" justify="center" h="100vh">
@@ -96,7 +113,6 @@ const RegisterForm: React.FC = () => {
                 variant="filled"
                 bg="white"
                 color="teal.800"
-                inputMode="numeric" // Restrict input to numeric values
               />
             </FormControl>
             <FormControl id="egn" isRequired>
@@ -110,7 +126,6 @@ const RegisterForm: React.FC = () => {
                 variant="filled"
                 bg="white"
                 color="teal.800"
-                inputMode="numeric" // Restrict input to numeric values
               />
             </FormControl>
             <FormControl id="email" isRequired>
@@ -124,10 +139,21 @@ const RegisterForm: React.FC = () => {
                 variant="filled"
                 bg="white"
                 color="teal.800"
-                inputMode="numeric" // Restrict input to numeric values
               />
             </FormControl>
-            {/* Other form fields */}
+            <FormControl id="phoneNumber" isRequired>
+              <FormLabel>{t("form.phoneNumber")}</FormLabel>
+              <Input
+                type="text"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                placeholder={t("form.enterPhoneNumber")}
+                variant="filled"
+                bg="white"
+                color="teal.800"
+              />
+            </FormControl>
             <Button
               type="submit"
               colorScheme="teal"

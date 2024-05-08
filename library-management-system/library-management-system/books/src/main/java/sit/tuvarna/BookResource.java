@@ -1,4 +1,4 @@
-package sit.tuvarna.books;
+package sit.tuvarna;
 
 
 import jakarta.annotation.security.RolesAllowed;
@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import sit.tuvarna.models.books.Book;
 
 import java.util.ArrayList;
 import java.util.List;

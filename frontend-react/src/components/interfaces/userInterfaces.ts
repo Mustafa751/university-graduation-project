@@ -32,4 +32,17 @@ export interface User {
     login: (username: string, password: string) => Promise<void>; 
     logout: () => void;
   }
+
+  export interface UserToBeCreated {
+    id: string;
+    fakNumber: string;
+    egn: string;
+    email: string;
+    phoneNumber: string;
+  }
+  export enum Roles {
+    STUDENT = "STUDENT",
+    TEACHER = "TEACHER",
+    ADMIN = "ADMIN"
+}
   

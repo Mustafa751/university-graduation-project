@@ -1,4 +1,4 @@
-package sit.tuvarna.images;
+package sit.tuvarna.models.images;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
