@@ -1,7 +1,5 @@
-// src/hooks/http.js
-
-export const sendRequest = async (url, options = {}) => {
-    // Always attach the JWT token if available, except for the JWT endpoint itself
+// Update the function to accept logout as a parameter
+export const sendRequest = async (url, options = {}, navigate, logout) => {
     if (!url.includes('http://localhost:8083/jwt')) {
       const jwtToken = localStorage.getItem('jwtToken');
       if (jwtToken) {
@@ -13,20 +11,19 @@ export const sendRequest = async (url, options = {}) => {
     }
   
     const response = await fetch(url, options);
-  
-    // Check if the fetch was successful
-    if (!response.ok) {
-      throw new Error(`HTTP error, status = ${response.status}: ${response.statusText}`);
-    }
-  
-    // Extract and update JWT token if present in the response headers
+
     const newToken = response.headers.get("Authorization");
     if (newToken && newToken.startsWith("Bearer ")) {
       const tokenValue = newToken.substring("Bearer ".length);
       localStorage.setItem('jwtToken', tokenValue);
+    } else {
+      // If no new token, use logout and navigate to login
+      logout();
+      if (navigate) {
+        navigate('/login', { replace: true });
+      }
+      return Promise.reject(new Error("Session expired. Please log in again."));
     }
   
-    // Return the JSON response
     return response.json();
-  };
-  
+};

@@ -1,28 +1,35 @@
 package sit.tuvarna.jwt;
 
 import jakarta.annotation.Priority;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ContainerRequestFilter;
-import jakarta.ws.rs.container.ContainerResponseContext;
-import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.container.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import sit.tuvarna.models.JwtResponse;
 
+import java.lang.reflect.Method;
+
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class JWTValidationFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
+    @Context
+    private ResourceInfo resourceInfo;
     private static final String VALIDATION_URL = "http://localhost:8083/jwt/check";
     private static final String GENERATION_URL = "http://localhost:8083/jwt";
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
+        Method method = resourceInfo.getResourceMethod();
+        if (method.isAnnotationPresent(PermitAll.class) || resourceInfo.getResourceClass().isAnnotationPresent(PermitAll.class)) {
+            return; // Skip JWT check
+        }
         String authHeader = requestContext.getHeaderString("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring("Bearer ".length());

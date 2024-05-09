@@ -1,4 +1,5 @@
 // src/hooks/http.d.ts
+import { NavigateFunction } from 'react-router-dom';
 
 interface SendRequestOptions extends RequestInit {
     headers?: HeadersInit & {
@@ -12,4 +13,20 @@ interface ApiResponse {
   }
   
 
-export declare function sendRequest(url: string, options?: SendRequestOptions): Promise<ApiResponse>;
+  export interface UserToBeCreated {
+    id: number;  // Assuming id is part of PanacheEntity
+    fakNumber: string;
+    egn: string;
+    email: string;
+    phoneNumber: string;
+}
+// src/hooks/http.d.ts
+
+export interface ApiResponse {}
+
+export declare function sendRequest<T = unknown>(
+    url: string, 
+    options?: SendRequestOptions, 
+    navigate?: NavigateFunction, 
+    logout?: () => void
+): Promise<T>;
