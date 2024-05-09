@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { AuthContextType } from "../interfaces/userInterfaces";
-import { sendRequest } from "../hooks/http";
+import { ApiResponse, SendRequestOptions, sendRequest } from "../hooks/http";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const dummyUser = {
   username: "testuser",
@@ -25,25 +25,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const login = (username: string, password: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {
-        if (
-          (username === "admin" && password === "admin") ||
-          (username === dummyUser.username && password === dummyUser.password)
-        ) {
-          setIsLoggedIn(true);
-          setUserRole(username === "admin" ? "admin" : dummyUser.role);
-          // Fetch the JWT from the server
-          sendRequest("http://localhost:8083/jwt")
-            .then((data: { jwt: string }) => {
-              localStorage.setItem("jwtToken", data.jwt); // Assume the response includes a jwt field
+        const requestOptions: SendRequestOptions = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fakNumber: username, egn: password }),
+        };
+
+        sendRequest("http://localhost:8089/api/users/login", requestOptions)
+          .then((response: ApiResponse) => {
+            if (response) {
+              // Assuming ApiResponse has a role or other user info you might use
+              setIsLoggedIn(true);
+              setUserRole(username === "admin" ? "admin" : dummyUser.role); // Example setup
               resolve();
-            })
-            .catch((error: Error) => {
-              logout(); // Ensure the user is logged out if JWT fetch fails
-              reject(error);
-            });
-        } else {
-          reject("Invalid username or password");
-        }
+            } else {
+              reject(new Error("Wrong username or password"));
+            }
+          })
+          .catch((error: Error) => {
+            logout();
+            reject(error);
+          });
       }, 1000);
     });
   };

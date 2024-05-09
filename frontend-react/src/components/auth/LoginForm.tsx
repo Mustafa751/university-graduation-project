@@ -6,11 +6,13 @@ import {
   Input,
   Button,
   Heading,
+  useToast,
 } from "@chakra-ui/react";
 import { useAuth } from "../auth/AuthContext"; // Make sure this path matches your file structure
 import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
+  const toast = useToast();
   const [formData, setFormData] = useState({ fakNumber: "", egn: "" });
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -26,12 +28,19 @@ function LoginForm() {
       .then(() => {
         navigate("/dashboard");
       })
-      .catch((error: string) => {
-        // Properly type the error
+      .catch((error: Error) => {
         console.error("Login failed:", error);
-        alert(error); // Display error message to the user
+        toast({
+          title: "Login Failed",
+          description: "Wrong username or password",
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
       });
   };
+
   return (
     <Flex
       direction="column"
