@@ -1,4 +1,3 @@
-// Import React, useState, and Chakra UI components
 import React, { ChangeEvent, useState } from "react";
 import {
   Text,
@@ -9,22 +8,31 @@ import {
   VStack,
   Flex,
   Box,
+  NumberInput,
+  NumberInputField,
   useColorModeValue,
+  useToast,
 } from "@chakra-ui/react";
-import Navbar from "../common/Navbar"; // Adjust the import path as needed
-import Footer from "../common/Footer"; // Adjust the import path as needed
+import Navbar from "../common/Navbar";
+import Footer from "../common/Footer";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import { sendRequest } from "../hooks/http";
 
 const AddBook = () => {
-  // State hooks for form fields
-  const [isbn, setIsbn] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [author, setAuthor] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [images, setImages] = useState<FileList | null>(null);
+  const toast = useToast();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [isbn, setIsbn] = useState("");
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [author, setAuthor] = useState("");
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [mainImage, setMainImage] = useState<File | null>(null);
+  const [otherImages, setOtherImages] = useState<FileList | null>(null);
   const [pdf, setPdf] = useState<File | null>(null);
 
-  // Handle form submission
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
@@ -33,31 +41,64 @@ const AddBook = () => {
     formData.append("date", date);
     formData.append("author", author);
     formData.append("description", description);
-    if (images) {
-      for (let i = 0; i < images.length; i++) {
-        formData.append("images", images[i]);
+    formData.append("quantity", quantity);
+    if (mainImage) {
+      formData.append("mainImage", mainImage);
+    }
+    if (otherImages) {
+      for (let i = 0; i < otherImages.length; i++) {
+        formData.append("images", otherImages[i]);
       }
     }
     if (pdf) {
       formData.append("pdf", pdf);
     }
 
-    // Placeholder for where you would send formData to the server
-    console.log("Form Data Submitted", formData);
+    // Note: Do not JSON.stringify(formData)
+    const requestOptions = {
+      method: "POST",
+      body: formData, // Directly use formData here
+    };
+
+    sendRequest<Response>(
+      "http://localhost:8081/api/books",
+      requestOptions,
+      navigate,
+      logout
+    )
+      .then((response: Response) => {
+        if (response.ok) {
+          toast({
+            title: "upload successful",
+            description: "uploaded successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            position: "top",
+          });
+        } else {
+          alert("Failed to add book");
+
+          response.text().then((text) => console.error(text)); // Log error message from the server
+        }
+      })
+      .catch((error) => {
+        console.error("Network or other error:", error);
+      });
   };
 
-  // Handle image file upload
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>): void => {
-    if (event.target.files) {
-      setImages(event.target.files);
-    }
-  };
-
-  // Handle PDF file upload
-  const handlePdfUpload = (event: ChangeEvent<HTMLInputElement>): void => {
+  const handleMainImageUpload = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
     if (event.target.files && event.target.files[0]) {
-      setPdf(event.target.files[0]);
+      setMainImage(event.target.files[0]);
     }
+  };
+
+  const handleOtherImagesUpload = (
+    event: ChangeEvent<HTMLInputElement>
+  ): void => {
+    setOtherImages(event.target.files);
   };
 
   const formBgColor = useColorModeValue("gray.50", "gray.700");
@@ -78,7 +119,6 @@ const AddBook = () => {
           borderRadius="lg"
           boxShadow="xl"
           width={{ base: "90%", md: "500px" }}
-          mb={10} // Adjust as needed to manage the space
         >
           <VStack spacing={4}>
             <FormControl isRequired>
@@ -118,6 +158,17 @@ const AddBook = () => {
                 bg={inputBgColor}
               />
             </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="quantity">Quantity</FormLabel>
+              <NumberInput min={1}>
+                <NumberInputField
+                  id="quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  bg={inputBgColor}
+                />
+              </NumberInput>
+            </FormControl>
             <FormControl>
               <FormLabel htmlFor="description">Description</FormLabel>
               <Input
@@ -128,12 +179,21 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="images">Images</FormLabel>
+              <FormLabel htmlFor="mainImage">Main Image</FormLabel>
               <Input
-                id="images"
+                id="mainImage"
+                type="file"
+                onChange={handleMainImageUpload}
+                accept="image/*"
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="otherImages">Other Images</FormLabel>
+              <Input
+                id="otherImages"
                 type="file"
                 multiple
-                onChange={handleImageUpload}
+                onChange={handleOtherImagesUpload}
                 accept="image/*"
               />
             </FormControl>
@@ -142,7 +202,7 @@ const AddBook = () => {
               <Input
                 id="pdf"
                 type="file"
-                onChange={handlePdfUpload}
+                onChange={(e) => setPdf(e.target.files && e.target.files[0])}
                 accept=".pdf"
               />
             </FormControl>
@@ -156,4 +216,5 @@ const AddBook = () => {
     </Flex>
   );
 };
+
 export default AddBook;

@@ -23,6 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
+
   const login = (username: string, password: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
       setTimeout(() => {

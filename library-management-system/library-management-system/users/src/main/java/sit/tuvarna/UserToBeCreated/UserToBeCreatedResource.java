@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import sit.tuvarna.models.roles.Roles;
 import sit.tuvarna.models.users.UserToBeCreated;
 
@@ -35,7 +36,8 @@ public class UserToBeCreatedResource {
     @Path("/{role}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Authenticated // Requires authentication to create a user with specific roles
-    public void createUser(@PathParam("role") Roles role, UserToBeCreated userToBeCreated){
+    public Response createUser(@PathParam("role") Roles role, UserToBeCreated userToBeCreated){
         userToBeCreatedService.createUserWithRole(userToBeCreated, role);
+        return Response.ok().build();
     }
 }

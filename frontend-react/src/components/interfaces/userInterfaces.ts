@@ -45,4 +45,12 @@ export interface User {
     TEACHER = "TEACHER",
     ADMIN = "ADMIN"
 }
+
+export interface BookData {
+  id: number;
+  name: string;
+  quantity: number;
+  mainImage: string; // This will now hold the Base64 string
+}
+
   

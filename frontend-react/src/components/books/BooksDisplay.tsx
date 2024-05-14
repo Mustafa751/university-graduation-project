@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   InputGroup,
   InputRightElement,
@@ -6,32 +6,20 @@ import {
   Heading,
   SimpleGrid,
   Box,
-  Image,
-  Text,
   Spinner,
   Input,
+  Text,
+  Image,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { debounce } from "lodash";
+import { debounce, throttle } from "lodash";
 import { useNavigate } from "react-router-dom";
+import { BookData } from "../interfaces/userInterfaces";
+import { SendRequestOptions, sendRequest } from "../hooks/http";
+import { useAuth } from "../auth/AuthContext";
 
-interface ApiResponseItem {
-  albumId: number;
-  id: number;
-  title: string;
-  url: string;
-  thumbnailUrl: string;
-}
-
-interface BookData {
-  id: number;
-  title: string;
-  count: number;
-  imageUrl: string;
-}
-
-function Book({ id, title, count, imageUrl }: BookData) {
-  const navigate = useNavigate(); // Hook for navigation
+function Book({ id, name, quantity, mainImage }: BookData) {
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -40,55 +28,80 @@ function Book({ id, title, count, imageUrl }: BookData) {
       borderRadius="lg"
       overflow="hidden"
       cursor="pointer"
-      onClick={() => navigate(`/book/${id}`)} // Navigate to the SingleBook component on click
+      onClick={() => navigate(`/book/${id}`)}
     >
-      <Image src={imageUrl} alt={title} />
+      <Image src={`data:image/jpeg;base64,${mainImage}`} alt={name} />
       <Text mt="2" fontWeight="semibold">
-        {title}
+        {name}
       </Text>
-      <Text color="gray.500">{count} readers</Text>
+      <Text color="gray.500">{quantity} readers</Text>
     </Box>
   );
 }
 
 function BooksDisplay() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [books, setBooks] = useState<BookData[]>([]);
   const [page, setPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<BookData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const isFetching = useRef<boolean>(false);
 
-  const fetchBooks = useCallback(() => {
+  const fetchBooks = useCallback(async () => {
+    if (isFetching.current) return;
+    isFetching.current = true;
     setLoading(true);
-    fetch(`https://jsonplaceholder.typicode.com/photos?_page=${page}&_limit=10`)
-      .then((response) => response.json())
-      .then((data: ApiResponseItem[]) => {
-        const newBooks = data.map((item) => ({
-          id: item.id,
-          title: item.title,
-          count: Math.floor(Math.random() * 1000),
-          imageUrl: item.url,
-        }));
-        setBooks((prevBooks) => [...prevBooks, ...newBooks]);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setLoading(false);
+    const requestOptions: SendRequestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      const data = await sendRequest<Array<BookData>>(
+        `http://localhost:8081/api/books?page=${page}&limit=10`, // Updated URL with pagination parameters
+        requestOptions,
+        navigate,
+        logout
+      );
+
+      const newBooks = data.map((item: BookData) => ({
+        id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+        mainImage: item.mainImage,
+      }));
+
+      setBooks((prevBooks) => {
+        // Only add new books if they are not already in the list
+        const existingBookIds = new Set(prevBooks.map((book) => book.id));
+        const filteredBooks = newBooks.filter(
+          (book) => !existingBookIds.has(book.id)
+        );
+        return [...prevBooks, ...filteredBooks];
       });
-  }, [page]);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      isFetching.current = false;
+      setLoading(false);
+    }
+  }, [page, navigate, logout]);
 
   useEffect(() => {
-    fetchBooks();
-  }, [fetchBooks]);
+    fetchBooks(); // Fetch books when the component mounts or when page changes
+  }, [fetchBooks, page]);
 
   const debouncedSearch = useCallback(
     debounce((query) => {
       const filtered = books.filter((book) =>
-        book.title.toLowerCase().includes(query.toLowerCase())
+        book.name.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(filtered);
       setIsSearching(true);
@@ -109,11 +122,14 @@ function BooksDisplay() {
       observer.current.disconnect();
     }
 
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !loading) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    });
+    observer.current = new IntersectionObserver(
+      throttle((entries) => {
+        if (entries[0].isIntersecting && !loading && !isFetching.current) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      }, 1000),
+      { threshold: 1.0 }
+    );
 
     if (sentinelRef.current) {
       observer.current.observe(sentinelRef.current);

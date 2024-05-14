@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Flex,
@@ -13,12 +14,14 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@chakra-ui/icons";
-import { useEffect, useState } from "react";
 import Navbar from "../common/Navbar";
 import Footer from "../common/Footer";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { SendRequestOptions, sendRequest } from "../hooks/http";
+import { useAuth } from "../auth/AuthContext";
 
 interface BookData {
+  id: number;
   isbn: string;
   author: string;
   productionDate: string;
@@ -26,20 +29,6 @@ interface BookData {
   description: string;
   images: string[];
 }
-
-const dummyBookData: BookData = {
-  isbn: "9780132350884",
-  author: "Elon Musk",
-  productionDate: "March 2024",
-  quantity: 10,
-  description: "This is a dummy description for the book.",
-  images: [
-    "https://via.placeholder.com/550",
-    "https://via.placeholder.com/550.png/09f/fff",
-    "https://via.placeholder.com/550.jpg/09f/fff",
-    "https://via.placeholder.com/550.gif/09f/fff",
-  ],
-};
 
 function BookDetails({ bookData }: { bookData: BookData }) {
   return (
@@ -76,44 +65,54 @@ function BookDetails({ bookData }: { bookData: BookData }) {
 
 function SingleBook() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
   const { id } = useParams(); // Get the book id from the URL
-  const [bookData, setBookData] = useState(null);
+  const [bookData, setBookData] = useState<BookData | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const imageSize = useBreakpointValue({ base: "100%", md: "300px" });
-
-  // Color mode value for hover effects
   const hoverBgColor = useColorModeValue("gray.100", "gray.700");
+
+  const fetchBook = useCallback(async () => {
+    setLoading(true);
+    const requestOptions: SendRequestOptions = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      const data = await sendRequest<BookData>(
+        `http://localhost:8081/api/books/${id}`, // Endpoint to fetch single book by id
+        requestOptions,
+        navigate,
+        logout
+      );
+      setBookData(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [id, navigate, logout]);
+
   useEffect(() => {
-    // Fetch book data using the ID
-    fetch(`https://jsonplaceholder.typicode.com/photos/${id}`)
-      .then((response) => response.json())
-      .then((data) => {
-        // Transform data into your expected format or set directly
-        setBookData({
-          ...data,
-          isbn: data.id.toString(),
-          author: "Author Name",
-          productionDate: "Date",
-          quantity: 1,
-          description: data.title,
-          images: [data.url],
-        });
-      });
-  }, [id]);
+    fetchBook();
+  }, [fetchBook]);
 
-  if (!bookData) return <div>Loading...</div>;
+  if (loading || !bookData) return <div>Loading...</div>;
 
-  // Ensure the nextImage and prevImage functions correctly update the state
   const nextImage = () => {
     setCurrentImageIndex(
-      (prevIndex) => (prevIndex + 1) % dummyBookData.images.length
+      (prevIndex) => (prevIndex + 1) % bookData.images.length
     );
   };
 
   const prevImage = () => {
     setCurrentImageIndex((prevIndex) => {
-      return prevIndex === 0 ? dummyBookData.images.length - 1 : prevIndex - 1;
+      return prevIndex === 0 ? bookData.images.length - 1 : prevIndex - 1;
     });
   };
 
@@ -125,11 +124,11 @@ function SingleBook() {
         align="center"
         justify="center"
         p={4}
-        maxW="1200px" // Adjust for a wider max width
+        maxW="1200px"
         mx="auto"
         flex="1"
         mb="10vh"
-        gap={4} // Added gap for spacing between elements
+        gap={4}
       >
         {/* Image carousel container */}
         <Flex align="center" justify="center" position="relative">
@@ -141,15 +140,14 @@ function SingleBook() {
             left={0}
             zIndex="2"
             variant="ghost"
-            // Added hover effect
             _hover={{ bg: hoverBgColor }}
           />
           <Image
-            src={dummyBookData.images[currentImageIndex]}
+            src={`data:image/jpeg;base64,${bookData.images[currentImageIndex]}`}
             boxSize={imageSize}
             objectFit="cover"
-            boxShadow="lg" // Enhanced shadow for depth
-            borderRadius="lg" // Rounded corners
+            boxShadow="lg"
+            borderRadius="lg"
             m={2}
           />
           <IconButton
@@ -160,12 +158,11 @@ function SingleBook() {
             right={0}
             zIndex="2"
             variant="ghost"
-            // Added hover effect
             _hover={{ bg: hoverBgColor }}
           />
         </Flex>
         <Box flexGrow={1} ml={{ md: "8" }} mt={{ base: "4", md: "0" }}>
-          <BookDetails bookData={dummyBookData} />
+          <BookDetails bookData={bookData} />
         </Box>
       </Flex>
       <Footer />

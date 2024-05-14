@@ -1,34 +1,22 @@
 package sit.tuvarna.models.images;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+import java.util.Base64;
+
 @Entity
-public class Image extends PanacheEntityBase {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Lob
+public class Image extends PanacheEntity {
     @Column(name = "data", columnDefinition = "bytea")
     private byte[] data;
 
-    // Constructors
     public Image() {
     }
 
     public Image(byte[] data) {
         this.data = data;
-    }
-
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public byte[] getData() {
@@ -37,5 +25,9 @@ public class Image extends PanacheEntityBase {
 
     public void setData(byte[] data) {
         this.data = data;
+    }
+
+    public String getBase64Data() {
+        return Base64.getEncoder().encodeToString(data);
     }
 }

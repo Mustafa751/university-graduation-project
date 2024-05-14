@@ -8,16 +8,30 @@ import ProtectedRoute from "./protectedRoutes";
 import UserDetails from "../user/UserDetails";
 import SingleBook from "../books/SingleBook";
 import UserToBeCreatedPage from "../user/UserToBeCreatedPage";
+import AddBook from "../books/AddBook";
 
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Login />} />
     <Route path="/login" element={<Login />} />
-    <Route path="/admin-panel" element={<AdminPanel />} />
-    <Route path="/user-details" element={<UserDetails />} />
-    <Route path="/user-info" element={<UserDetails />} />
+    <Route
+      path="/admin-panel"
+      element={<ProtectedRoute element={AdminPanel} />}
+    />
+    <Route
+      path="/user-details"
+      element={<ProtectedRoute element={UserDetails} />}
+    />
+    <Route
+      path="/user-info"
+      element={<ProtectedRoute element={UserDetails} />}
+    />
+    <Route path="/add-book" element={<AddBook />} />
     <Route path="/register" element={<Register />} />
-    <Route path="/usersToBeCreated" element={<UserToBeCreatedPage />} />
+    <Route
+      path="/usersToBeCreated"
+      element={<ProtectedRoute element={UserToBeCreatedPage} />}
+    />
     <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
     <Route path="/book/:id" element={<ProtectedRoute element={SingleBook} />} />
     <Route
