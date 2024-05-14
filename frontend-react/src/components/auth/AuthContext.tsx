@@ -3,11 +3,6 @@ import { AuthContextType } from "../interfaces/userInterfaces";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useNavigate } from "react-router-dom";
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-const dummyUser = {
-  username: "testuser",
-  password: "password123",
-  role: "user", // Change to 'admin' for admin access
-};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -45,7 +40,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
             if (response) {
               // Assuming ApiResponse has a role or other user info you might use
               setIsLoggedIn(true);
-              setUserRole(username === "admin" ? "admin" : dummyUser.role); // Example setup
+              setUserRole(username === "12345678910" ? "admin" : "user"); // Example setup
               resolve();
             } else {
               reject(new Error("Wrong username or password"));

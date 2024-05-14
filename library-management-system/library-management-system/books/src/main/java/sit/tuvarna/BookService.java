@@ -4,10 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import sit.tuvarna.models.books.Book;
-import sit.tuvarna.models.books.BookDTO;
-import sit.tuvarna.models.books.BookDetailsDTO;
-import sit.tuvarna.models.books.BookMapper;
+import sit.tuvarna.models.books.*;
 import sit.tuvarna.models.images.Image;
 
 import java.util.List;
@@ -30,5 +27,11 @@ public class BookService {
     public BookDetailsDTO detailsBook(Long id) {
         Book book = Book.findById(id);
         return BookMapper.toDetailsDTO(book);
+    }
+
+    public List<BookRentDTO> getRentBooks() {
+        List<Book> books = Book.find("quantity > 1").list();
+        return books.stream()
+                .map(book -> new BookRentDTO(book.id, book.name)).toList();
     }
 }

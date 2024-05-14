@@ -13,15 +13,21 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import sit.tuvarna.models.books.Book;
 import sit.tuvarna.models.books.BookDetailsDTO;
+import sit.tuvarna.models.books.BookRentDTO;
 import sit.tuvarna.models.images.Image;
+import sit.tuvarna.models.rental.RentRequestDTO;
+import sit.tuvarna.models.rental.Rental;
+import sit.tuvarna.models.users.User;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/api/books")
 @ApplicationScoped
@@ -98,6 +104,42 @@ public class BookResource {
     public Response getBooks(@QueryParam("page") @DefaultValue("1") int page,
                              @QueryParam("limit") @DefaultValue("10") int limit) {
         return Response.ok(bookService.getBooks(page, limit)).build();
+    }
+
+    @GET
+    @Path("/rent-books")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBooks() {
+        return Response.ok(bookService.getRentBooks()).build();
+    }
+
+    @POST
+    @Path("/rent")
+    @Transactional
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response rentBook(RentRequestDTO rentRequest) {
+        try {
+            Book book = Book.findById(rentRequest.bookId);
+            User user = User.findById(rentRequest.userId);
+            if (book == null || user == null || book.quantity <= 0) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+
+            book.quantity -= 1;
+            book.persist();
+
+            Rental rental = new Rental();
+            rental.setBook(book);
+            rental.setUser(user);
+            rental.setRentalStartDate(LocalDate.now().atStartOfDay());
+            rental.setRentalEndDate(LocalDate.parse(rentRequest.returnDate).atStartOfDay());
+            rental.persist();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+
+        return Response.ok().build();
     }
 
 }

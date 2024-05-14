@@ -5,10 +5,7 @@ import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -18,9 +15,11 @@ import jakarta.ws.rs.core.Response;
 import sit.tuvarna.models.JwtResponse;
 import sit.tuvarna.models.users.LoginRequest;
 import sit.tuvarna.models.users.User;
+import sit.tuvarna.models.users.UserDTO;
 
 import java.util.List;
 import java.util.jar.JarEntry;
+import java.util.stream.Collectors;
 
 @Path("/api/users")
 @ApplicationScoped
@@ -35,6 +34,18 @@ public class UserResource {
     @Authenticated // Requires authentication to access user list
     public List<User> getUsers(){
         return userService.getUsers();
+    }
+
+    @GET
+    @Path("/rent-users")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getRentUsers() {
+        List<User> users = User.listAll();
+        List<UserDTO> userDTOs = users.stream()
+                .map(user -> new UserDTO(user.id, user.getFakNumber()))
+                .collect(Collectors.toList());
+        return Response.ok(userDTOs).build();
     }
 
     @POST

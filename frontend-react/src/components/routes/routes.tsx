@@ -9,11 +9,13 @@ import UserDetails from "../user/UserDetails";
 import SingleBook from "../books/SingleBook";
 import UserToBeCreatedPage from "../user/UserToBeCreatedPage";
 import AddBook from "../books/AddBook";
+import RentOut from "../rent/RentOut";
 
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Login />} />
     <Route path="/login" element={<Login />} />
+    <Route path="/rentBook" element={<RentOut />} />
     <Route
       path="/admin-panel"
       element={<ProtectedRoute element={AdminPanel} />}
