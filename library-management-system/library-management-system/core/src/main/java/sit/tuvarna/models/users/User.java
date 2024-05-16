@@ -1,8 +1,9 @@
 package sit.tuvarna.models.users;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
-import sit.tuvarna.models.books.Book;
+import sit.tuvarna.models.rental.Rental;
 import sit.tuvarna.models.roles.Roles;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 @Table(name = "users")
 public class User extends PanacheEntity {
     @Column(unique = true)
-    private String fakNumber;
+    private String facultyNumber;
 
     private String egn;
 
@@ -22,22 +23,18 @@ public class User extends PanacheEntity {
 
     private String phoneNumber;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(
-            name = "user_books",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "book_id")
-    )
-    private List<Book> rentedBooks;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Rental> rentals;
 
     // Getters and Setters
 
-    public String getFakNumber() {
-        return fakNumber;
+    public String getFacultyNumber() {
+        return facultyNumber;
     }
 
-    public void setFakNumber(String fakNumber) {
-        this.fakNumber = fakNumber;
+    public void setFacultyNumber(String facultyNumber) {
+        this.facultyNumber = facultyNumber;
     }
 
     public String getEgn() {
@@ -72,11 +69,11 @@ public class User extends PanacheEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public List<Book> getRentedBooks() {
-        return rentedBooks;
+    public List<Rental> getRentals() {
+        return rentals;
     }
 
-    public void setRentedBooks(List<Book> rentedBooks) {
-        this.rentedBooks = rentedBooks;
+    public void setRentals(List<Rental> rentals) {
+        this.rentals = rentals;
     }
 }

@@ -63,10 +63,25 @@ public class JWTValidationFilter implements ContainerRequestFilter, ContainerRes
 
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
-        // Add new token to the response header
-        String newToken = (String) requestContext.getProperty("newToken");
-        if (newToken != null) {
-            responseContext.getHeaders().add("Authorization", "Bearer " + newToken);
+        // Check if the request was for the login endpoint
+        if (requestContext.getUriInfo().getPath().endsWith("/login")) {
+            return; // Do nothing if it's a login request
+        } else {
+            // Add new token to the response header if present
+            String newToken = (String) requestContext.getProperty("newToken");
+            if (newToken != null) {
+                responseContext.getHeaders().add("Authorization", "Bearer " + newToken);
+            }
+        }
+    }
+
+    private boolean hasIdProperty(Object entity) {
+        try {
+            Method getIdMethod = entity.getClass().getMethod("getId");
+            Object id = getIdMethod.invoke(entity);
+            return id != null;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

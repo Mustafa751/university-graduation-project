@@ -10,22 +10,21 @@ import SingleBook from "../books/SingleBook";
 import UserToBeCreatedPage from "../user/UserToBeCreatedPage";
 import AddBook from "../books/AddBook";
 import RentOut from "../rent/RentOut";
+import UserBooks from "../user/UserBooks";
 
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Login />} />
     <Route path="/login" element={<Login />} />
     <Route path="/rentBook" element={<RentOut />} />
-    <Route
-      path="/admin-panel"
-      element={<ProtectedRoute element={AdminPanel} />}
-    />
+    <Route path="/admin-panel" element={<AdminPanel />} />
+    <Route path="/user-books/:userId" element={<UserBooks />} />
     <Route
       path="/user-details"
       element={<ProtectedRoute element={UserDetails} />}
     />
     <Route
-      path="/user-info"
+      path="/user-info/:userId"
       element={<ProtectedRoute element={UserDetails} />}
     />
     <Route path="/add-book" element={<AddBook />} />

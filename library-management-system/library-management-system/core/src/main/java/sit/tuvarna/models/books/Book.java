@@ -3,7 +3,6 @@ package sit.tuvarna.models.books;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import sit.tuvarna.models.images.Image;
-import sit.tuvarna.models.users.User;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,8 +24,6 @@ public class Book extends PanacheEntity {
     public byte[] mainImage;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     public List<Image> images;
-    @ManyToMany(mappedBy = "rentedBooks", fetch = FetchType.LAZY)
-    public List<User> users;
 
     // Constructors
     public Book() {
@@ -68,9 +65,5 @@ public class Book extends PanacheEntity {
 
     public void addImage(Image image) {
         this.images.add(image);
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
     }
 }

@@ -1,7 +1,14 @@
-import React, { createContext, useContext, useState } from "react";
-import { AuthContextType } from "../interfaces/userInterfaces";
+import React, { createContext, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store/store"; // Import the RootState type from store
+import {
+  login as loginAction,
+  logout as logoutAction,
+} from "../../slices/userSlice"; // Import the actions from userSlice
+import { AuthContextType, User } from "../interfaces/userInterfaces"; // Import the AuthContextType
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useNavigate } from "react-router-dom";
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
@@ -15,53 +22,66 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { isLoggedIn, userRole, userId } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const login = (username: string, password: string): Promise<void> => {
     return new Promise<void>((resolve, reject) => {
-      setTimeout(() => {
-        const requestOptions: SendRequestOptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fakNumber: username, egn: password }),
-        };
+      const requestOptions: SendRequestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fakNumber: username, egn: password }),
+      };
 
-        sendRequest<string>(
-          "http://localhost:8089/api/users/login",
-          requestOptions,
-          navigate,
-          logout
-        )
-          .then((response: string) => {
-            if (response) {
-              // Assuming ApiResponse has a role or other user info you might use
-              setIsLoggedIn(true);
-              setUserRole(username === "12345678910" ? "admin" : "user"); // Example setup
-              resolve();
-            } else {
-              reject(new Error("Wrong username or password"));
-            }
-          })
-          .catch((error: Error) => {
-            logout();
-            reject(error);
-          });
-      }, 1000);
+      sendRequest<User>(
+        "http://localhost:8089/api/users/login",
+        requestOptions,
+        navigate,
+        logout
+      )
+        .then((response) => {
+          if (response) {
+            const user = {
+              id: response.id,
+              email: response.email,
+              phoneNumber: response.phoneNumber,
+              facultyNumber: response.facultyNumber,
+              username: response.username,
+              role: response.role,
+            };
+            dispatch(
+              loginAction({
+                user,
+                userRole: response.role,
+                userId: response.id,
+              })
+            );
+            resolve();
+          } else {
+            reject(new Error("Wrong username or password"));
+          }
+        })
+        .catch((error: Error) => {
+          logout();
+          reject(error);
+        });
     });
   };
 
   const logout = () => {
-    setIsLoggedIn(false);
-    setUserRole(null);
     localStorage.removeItem("jwtToken");
+    dispatch(logoutAction());
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, userRole, login, logout }}>
+    <AuthContext.Provider
+      value={{ isLoggedIn, userRole, userId, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

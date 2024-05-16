@@ -1,5 +1,4 @@
-// src/components/admin/AdminPanel.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Thead,
@@ -13,31 +12,60 @@ import {
   useColorModeValue,
   Container,
   Text,
+  Button,
+  Tooltip,
+  Input,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
+import { SearchIcon } from "@chakra-ui/icons";
 import { AdminPanelProps } from "../interfaces/userInterfaces";
 import Navbar from "../common/Navbar";
 import Footer from "../common/Footer";
-
-// Example mock data - replace with actual data fetching
-const mockUsers: AdminPanelProps[] = [
-  {
-    id: 1,
-    username: "JaneDoe",
-    email: "jane@example.com",
-    facultyNumber: "F123456",
-  },
-  {
-    id: 2,
-    username: "JohnDoe",
-    email: "john@example.com",
-    facultyNumber: "F654321",
-  },
-  // Add more users as needed for demonstration
-];
+import { SendRequestOptions, sendRequest } from "../hooks/http";
+import { useAuth } from "../auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const AdminPanel: React.FC = () => {
+  const [users, setUsers] = useState<AdminPanelProps[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<AdminPanelProps[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const bg = useColorModeValue("white", "gray.800"); // Adapting based on theme
   const color = useColorModeValue("gray.600", "white");
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const requestOptions: SendRequestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      try {
+        const data = await sendRequest<AdminPanelProps[]>(
+          "http://localhost:8089/api/users/summary",
+          requestOptions,
+          logout
+        );
+        setUsers(data);
+        setFilteredUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+
+    fetchUsers();
+  }, [logout]);
+
+  useEffect(() => {
+    const results = users.filter((user) =>
+      user.facultyNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredUsers(results);
+  }, [searchTerm, users]);
 
   return (
     <Flex direction="column" minHeight="100vh">
@@ -47,21 +75,46 @@ const AdminPanel: React.FC = () => {
           <Text fontSize="xl" mb="4" fontWeight="bold" color={color}>
             User Management
           </Text>
+          <Flex justify="flex-end" mb="4">
+            <InputGroup maxWidth="400px">
+              <Input
+                placeholder="Search by Faculty Number"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <InputRightElement children={<SearchIcon color="gray.500" />} />
+            </InputGroup>
+          </Flex>
           <TableContainer bg={bg} borderRadius="lg" boxShadow="base" p="4">
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th>Username</Th>
                   <Th>Email</Th>
                   <Th>Faculty Number</Th>
+                  <Th>Phone Number</Th>
+                  <Th>Actions</Th>
                 </Tr>
               </Thead>
               <Tbody>
-                {mockUsers.map((user) => (
+                {filteredUsers.map((user) => (
                   <Tr key={user.id}>
-                    <Td>{user.username}</Td>
                     <Td>{user.email}</Td>
                     <Td>{user.facultyNumber}</Td>
+                    <Td>{user.phoneNumber}</Td>
+                    <Td>
+                      <Tooltip
+                        label="View Unreturned Books"
+                        aria-label="View Unreturned Books"
+                      >
+                        <Button
+                          size="sm"
+                          colorScheme="teal"
+                          onClick={() => navigate(`/user-books/${user.id}`)}
+                        >
+                          View Books
+                        </Button>
+                      </Tooltip>
+                    </Td>
                   </Tr>
                 ))}
               </Tbody>

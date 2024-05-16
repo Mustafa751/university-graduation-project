@@ -8,13 +8,18 @@ import {
 import { FiUser, FiSun, FiMoon } from "react-icons/fi";
 import { useAuth } from "../auth/AuthContext";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom"; // Correct import of useNavigate
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 function Navbar() {
   const { t, i18n } = useTranslation();
-  const { isLoggedIn, userRole, logout } = useAuth(); // Removed login from destructuring
+  const { logout } = useAuth();
   const { colorMode, toggleColorMode } = useColorMode();
-  const navigate = useNavigate(); // Using useNavigate for navigation
+  const navigate = useNavigate();
+  const { isLoggedIn, userRole, userId } = useSelector(
+    (state: RootState) => state.user
+  );
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -28,19 +33,15 @@ function Navbar() {
       <Flex alignItems="center">
         {!isLoggedIn ? (
           <>
-            {/* Redirect to login page */}
             <Button
               mr="2"
               colorScheme="teal"
               onClick={() => navigate("/login")}
             >
-              {t("navbar.login")}{" "}
-              {/* Assuming your translations handle "Вход" */}
+              {t("navbar.login")}
             </Button>
-            {/* Redirect to register page */}
             <Button colorScheme="teal" onClick={() => navigate("/register")}>
-              {t("navbar.register")}{" "}
-              {/* Assuming your translations handle "Регистрация" */}
+              {t("navbar.register")}
             </Button>
           </>
         ) : (
@@ -52,7 +53,7 @@ function Navbar() {
               variant="ghost"
               fontSize="20px"
               mr="2"
-              onClick={() => navigate("/user-info")}
+              onClick={() => navigate(`/user-info/${userId}`)}
             />
             <Button
               mr="2"

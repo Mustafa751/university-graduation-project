@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -18,7 +17,6 @@ import sit.tuvarna.models.users.User;
 import sit.tuvarna.models.users.UserDTO;
 
 import java.util.List;
-import java.util.jar.JarEntry;
 import java.util.stream.Collectors;
 
 @Path("/api/users")
@@ -43,7 +41,7 @@ public class UserResource {
     public Response getRentUsers() {
         List<User> users = User.listAll();
         List<UserDTO> userDTOs = users.stream()
-                .map(user -> new UserDTO(user.id, user.getFakNumber()))
+                .map(user -> new UserDTO(user.id, user.getFacultyNumber()))
                 .collect(Collectors.toList());
         return Response.ok(userDTOs).build();
     }
@@ -53,9 +51,9 @@ public class UserResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @PermitAll // No authentication needed for login
     public Response login(LoginRequest loginRequest) {
-        boolean isValidUser = userService.login(loginRequest);
+        User isValidUser = userService.login(loginRequest);
 
-        if (isValidUser) {
+        if (isValidUser != null) {
             try (Response serviceResponse = client.target("http://localhost:8083/jwt")
                     .request(MediaType.APPLICATION_JSON)
                     .get()) {
@@ -64,7 +62,7 @@ public class UserResource {
                     String token = serviceResponse.readEntity(JwtResponse.class).getJwt();
                     // Return JSON object with isValidUser status and token
                     return Response.ok()
-                            .entity("{\"isValidUser\": true}")
+                            .entity(isValidUser)
                             .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                             .type(MediaType.APPLICATION_JSON)
                             .build();
@@ -80,4 +78,46 @@ public class UserResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/summary")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUsersSummary() {
+        return Response.ok(userService.getUsersSummary()).build();
+    }
+
+    @GET
+    @Path("/{userId}/unreturned-books")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUnreturnedBooks(@PathParam("userId") Long userId) {
+        return Response.ok(userService.getUnreturnedBooks(userId)).build();
+    }
+
+    @POST
+    @Path("/{userId}/return-book/{bookId}")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response returnBook(@PathParam("userId") Long userId, @PathParam("bookId") Long bookId) {
+        userService.getBook(userId, bookId);
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{userId}/books")
+    @Authenticated
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllBooks(@PathParam("userId") Long userId) {
+        return Response.ok(userService.getAllBooks(userId)).build();
+    }
+
+    @GET
+    @Path("/due-soon")
+    @PermitAll
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUsersWithBooksDueInLessThanTwoDays() {
+        return Response.ok(userService.getUsersWithBooksDueInLessThanTwoDays()).build();
+    }
+
 }

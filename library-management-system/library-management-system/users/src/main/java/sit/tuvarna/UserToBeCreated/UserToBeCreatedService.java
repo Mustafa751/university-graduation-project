@@ -13,7 +13,7 @@ public class UserToBeCreatedService {
     @Transactional
     public void createUserWithRole(UserToBeCreated userToBeCreated, Roles role) {
         User newUser = new User();
-        newUser.setFakNumber(userToBeCreated.getFakNumber());
+        newUser.setFacultyNumber(userToBeCreated.getFakNumber());
         newUser.setEgn(userToBeCreated.getEgn());
         newUser.setEmail(userToBeCreated.getEmail());
         newUser.setPhoneNumber(userToBeCreated.getPhoneNumber());
