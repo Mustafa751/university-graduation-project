@@ -15,6 +15,7 @@ import sit.tuvarna.models.JwtResponse;
 import sit.tuvarna.models.users.LoginRequest;
 import sit.tuvarna.models.users.User;
 import sit.tuvarna.models.users.UserDTO;
+import sit.tuvarna.models.users.UserStateManagementDTO;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -49,26 +50,29 @@ public class UserResource {
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
-    @PermitAll // No authentication needed for login
+    @PermitAll
     public Response login(LoginRequest loginRequest) {
-        User isValidUser = userService.login(loginRequest);
+        UserStateManagementDTO isValidUser = userService.login(loginRequest);
 
         if (isValidUser != null) {
-            try (Response serviceResponse = client.target("http://localhost:8083/jwt")
+            Client client = ClientBuilder.newClient();
+            Response serviceResponse = client.target("http://localhost:8083/jwt")
+                    .queryParam("userId", String.valueOf(isValidUser.getId()))
+                    .queryParam("email", isValidUser.getEmail())
+                    .queryParam("role", isValidUser.getRole())
                     .request(MediaType.APPLICATION_JSON)
-                    .get()) {
+                    .get();
 
-                if (serviceResponse.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
-                    String token = serviceResponse.readEntity(JwtResponse.class).getJwt();
-                    // Return JSON object with isValidUser status and token
-                    return Response.ok()
-                            .entity(isValidUser)
-                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                            .type(MediaType.APPLICATION_JSON)
-                            .build();
-                } else {
-                    return Response.status(Response.Status.BAD_GATEWAY).entity("Failed to generate token").build();
-                }
+            if (serviceResponse.getStatusInfo().getFamily() == Response.Status.Family.SUCCESSFUL) {
+                String token = serviceResponse.readEntity(JwtResponse.class).getJwt();
+                // Return JSON object with isValidUser status and token
+                return Response.ok()
+                        .entity(isValidUser)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+            } else {
+                return Response.status(Response.Status.BAD_GATEWAY).entity("Failed to generate token").build();
             }
         } else {
             // Return JSON object with isValidUser status

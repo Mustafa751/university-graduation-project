@@ -10,10 +10,7 @@ import sit.tuvarna.models.books.Book;
 import sit.tuvarna.models.books.UnreturnedBookDTO;
 import sit.tuvarna.models.books.UserBooksDTO;
 import sit.tuvarna.models.rental.Rental;
-import sit.tuvarna.models.users.EmailSchedulerDTO;
-import sit.tuvarna.models.users.LoginRequest;
-import sit.tuvarna.models.users.User;
-import sit.tuvarna.models.users.UserSummaryDTO;
+import sit.tuvarna.models.users.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,14 +23,16 @@ public class UserService {
     @Inject
     EntityManager em;
     @Transactional
-    public User login(LoginRequest loginRequest) {
-      try {
-          User user = User.find("facultyNumber = ?1 and egn = ?2", loginRequest.fakNumber, loginRequest.egn).firstResult();
-          return user;
-      }catch (Exception e) {
-      e.getMessage();
-      }
-return null;
+    public UserStateManagementDTO login(LoginRequest loginRequest) {
+        try {
+            UserStateManagementDTO user = User.find("facultyNumber = ?1 and egn = ?2", loginRequest.getFakNumber(), loginRequest.getEgn())
+                    .project(UserStateManagementDTO.class)
+                    .firstResult();
+
+            return user;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     @Transactional

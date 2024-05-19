@@ -14,6 +14,7 @@ import jakarta.ws.rs.ext.Provider;
 import sit.tuvarna.models.JwtResponse;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
@@ -23,6 +24,7 @@ public class JWTValidationFilter implements ContainerRequestFilter, ContainerRes
     private ResourceInfo resourceInfo;
     private static final String VALIDATION_URL = "http://localhost:8083/jwt/check";
     private static final String GENERATION_URL = "http://localhost:8083/jwt";
+    private static final String PARSE_URL = "http://localhost:8083/jwt/parse";
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -40,14 +42,31 @@ public class JWTValidationFilter implements ContainerRequestFilter, ContainerRes
 
             if (validationResponse.getStatus() == Response.Status.OK.getStatusCode() &&
                     validationResponse.readEntity(Boolean.class)) {
-                // Token is valid, request a new token
-                Response newTokenResponse = client.target(GENERATION_URL)
+                // Token is valid, extract user details from the token
+                Response userDetailsResponse = client.target(PARSE_URL)
                         .request(MediaType.APPLICATION_JSON)
-                        .get();
+                        .post(Entity.entity(token, MediaType.APPLICATION_JSON));
 
-                if (newTokenResponse.getStatus() == Response.Status.OK.getStatusCode()) {
-                    String newToken = newTokenResponse.readEntity(JwtResponse.class).getJwt();
-                    requestContext.setProperty("newToken", newToken); // Store new token to add in response
+                if (userDetailsResponse.getStatus() == Response.Status.OK.getStatusCode()) {
+                    Map<String, Object> userDetails = userDetailsResponse.readEntity(Map.class);
+
+                    // Prepare query parameters for new token request
+                    String userId = userDetails.get("userId").toString();
+                    String email = userDetails.get("email").toString();
+                    String role = userDetails.get("role").toString();
+
+                    // Request a new token using GET request with query parameters
+                    Response newTokenResponse = client.target(GENERATION_URL)
+                            .queryParam("userId", userId)
+                            .queryParam("email", email)
+                            .queryParam("role", role)
+                            .request(MediaType.APPLICATION_JSON)
+                            .get();
+
+                    if (newTokenResponse.getStatus() == Response.Status.OK.getStatusCode()) {
+                        String newToken = newTokenResponse.readEntity(JwtResponse.class).getJwt();
+                        requestContext.setProperty("newToken", newToken); // Store new token to add in response
+                    }
                 }
 
                 client.close();
@@ -72,16 +91,6 @@ public class JWTValidationFilter implements ContainerRequestFilter, ContainerRes
             if (newToken != null) {
                 responseContext.getHeaders().add("Authorization", "Bearer " + newToken);
             }
-        }
-    }
-
-    private boolean hasIdProperty(Object entity) {
-        try {
-            Method getIdMethod = entity.getClass().getMethod("getId");
-            Object id = getIdMethod.invoke(entity);
-            return id != null;
-        } catch (Exception e) {
-            return false;
         }
     }
 }
