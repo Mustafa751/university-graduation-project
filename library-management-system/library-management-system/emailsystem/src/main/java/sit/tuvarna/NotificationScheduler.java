@@ -17,7 +17,6 @@ import sit.tuvarna.models.users.User;
 
 import java.util.List;
 
-
 @ApplicationScoped
 public class NotificationScheduler {
 
@@ -42,6 +41,11 @@ public class NotificationScheduler {
     EntityManager em;
 
     private Client client = ClientBuilder.newClient();
+
+    // Setter method for testing purposes
+    public void setClient(Client client) {
+        this.client = client;
+    }
 
     public List<EmailSchedulerDTO> getUsersWithBooksDueInLessThanTwoDays() {
         Response response = client.target("http://localhost:8089/api/users/due-soon")

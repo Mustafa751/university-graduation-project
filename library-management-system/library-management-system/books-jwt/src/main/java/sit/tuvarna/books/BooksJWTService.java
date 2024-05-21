@@ -5,8 +5,6 @@ import io.smallrye.jwt.auth.principal.JWTCallerPrincipal;
 import io.smallrye.jwt.auth.principal.JWTAuthContextInfo;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.inject.Singleton;
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
 import sit.tuvarna.models.roles.Roles;
 
 import java.security.KeyFactory;
@@ -24,11 +22,15 @@ import java.io.InputStreamReader;
 @Singleton
 public class BooksJWTService {
 
-    private final JWTAuthContextInfo contextInfo;
+    private JWTAuthContextInfo contextInfo;
 
     public BooksJWTService() {
         // Load the public key from the classpath
         PublicKey publicKey = loadPublicKey("publicKey.pem");
+        this.contextInfo = new JWTAuthContextInfo(publicKey, "books-jwt");
+    }
+
+    public BooksJWTService(PublicKey publicKey) {
         this.contextInfo = new JWTAuthContextInfo(publicKey, "books-jwt");
     }
 
