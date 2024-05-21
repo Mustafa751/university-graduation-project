@@ -20,4 +20,36 @@ public class BookDTO {
         String base64Image = book.mainImage != null ? Base64.getEncoder().encodeToString(book.mainImage) : null;
         return new BookDTO(book.id, book.name, book.quantity, base64Image);
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(String mainImage) {
+        this.mainImage = mainImage;
+    }
 }

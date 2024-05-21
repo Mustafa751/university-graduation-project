@@ -66,4 +66,36 @@ public class Book extends PanacheEntity {
     public void addImage(Image image) {
         this.images.add(image);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public Date getProductionDate() {
+        return productionDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public byte[] getMainImage() {
+        return mainImage;
+    }
 }
