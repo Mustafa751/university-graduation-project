@@ -1,11 +1,13 @@
 package sit.tuvarna.userpackage.users;
 
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sit.tuvarna.core.models.JwtResponse;
 import sit.tuvarna.core.models.books.UnreturnedBookDTO;
 import sit.tuvarna.core.models.books.UserBooksDTO;
 import sit.tuvarna.core.models.roles.Roles;
@@ -17,8 +19,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserResourceTest {
@@ -36,168 +37,118 @@ class UserResourceTest {
 
     @Test
     void testGetUsers() {
-        // Setup
-        // Configure UserService.getUsers(...).
-        final User user = new User();
-        user.setFacultyNumber("name");
-        user.setEgn("egn");
-        user.setRole(Roles.STUDENT);
-        user.setEmail("email");
-        user.setPhoneNumber("phoneNumber");
-        final List<User> users = List.of(user);
+        final UserDTO userDTO = new UserDTO(1L, "facultyNumber");
+        final List<UserDTO> users = List.of(userDTO);
         when(mockUserService.getUsers()).thenReturn(users);
 
-        // Run the test
-        final List<User> result = userResourceUnderTest.getUsers();
-
-        // Verify the results
+        final List<UserDTO> result = userResourceUnderTest.getUsers();
+        assertEquals(users, result);
     }
 
     @Test
     void testGetUsers_UserServiceReturnsNoItems() {
-        // Setup
         when(mockUserService.getUsers()).thenReturn(Collections.emptyList());
 
-        // Run the test
-        final List<User> result = userResourceUnderTest.getUsers();
-
-        // Verify the results
+        final List<UserDTO> result = userResourceUnderTest.getUsers();
         assertEquals(Collections.emptyList(), result);
     }
 
     @Test
     void testLogin() {
-        // Setup
         final LoginRequest loginRequest = new LoginRequest("fakNumber", "egn");
-
-        // Configure UserService.login(...).
-        final UserStateManagementDTO userStateManagementDTO = new UserStateManagementDTO(0L, "email", "facultyNumber",
-                "phoneNumber", Roles.STUDENT);
+        final UserStateManagementDTO userStateManagementDTO = new UserStateManagementDTO(1L, "email", "facultyNumber", "phoneNumber", Roles.STUDENT);
         when(mockUserService.login(any(LoginRequest.class))).thenReturn(userStateManagementDTO);
+        when(mockUserService.generateJwt(any(UserStateManagementDTO.class))).thenReturn("jwtToken");
 
-        // Run the test
         final Response result = userResourceUnderTest.login(loginRequest);
-
-        // Verify the results
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testLogin_UserServiceReturnsNull() {
-        // Setup
         final LoginRequest loginRequest = new LoginRequest("fakNumber", "egn");
-        when(mockUserService.login(any(LoginRequest.class))).thenReturn(null);
+        when(mockUserService.login(any(LoginRequest.class))).thenThrow(new WebApplicationException("Invalid credentials", Response.Status.UNAUTHORIZED));
 
-        // Run the test
         final Response result = userResourceUnderTest.login(loginRequest);
-
-        // Verify the results
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetUsersSummary() {
-        // Setup
-        // Configure UserService.getUsersSummary(...).
-        final List<UserSummaryDTO> userSummaryDTOS = List.of(
-                new UserSummaryDTO(0L, "facultyNumber", "email", "phoneNumber"));
+        final UserSummaryDTO userSummaryDTO = new UserSummaryDTO(1L, "facultyNumber", "email", "phoneNumber");
+        final List<UserSummaryDTO> userSummaryDTOS = List.of(userSummaryDTO);
         when(mockUserService.getUsersSummary()).thenReturn(userSummaryDTOS);
 
-        // Run the test
         final Response result = userResourceUnderTest.getUsersSummary();
-
-        // Verify the results
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetUsersSummary_UserServiceReturnsNoItems() {
-        // Setup
         when(mockUserService.getUsersSummary()).thenReturn(Collections.emptyList());
 
-        // Run the test
         final Response result = userResourceUnderTest.getUsersSummary();
-
-        // Verify the results
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetUnreturnedBooks() {
-        // Setup
-        // Configure UserService.getUnreturnedBooks(...).
-        final List<UnreturnedBookDTO> unreturnedBookDTOS = List.of(
-                new UnreturnedBookDTO(0L, "bookName", LocalDateTime.of(2020, 1, 1, 0, 0, 0)));
-        when(mockUserService.getUnreturnedBooks(0L)).thenReturn(unreturnedBookDTOS);
+        final UnreturnedBookDTO unreturnedBookDTO = new UnreturnedBookDTO(1L, "bookName", LocalDateTime.now().plusDays(1));
+        final List<UnreturnedBookDTO> unreturnedBookDTOS = List.of(unreturnedBookDTO);
+        when(mockUserService.getUnreturnedBooks(1L)).thenReturn(unreturnedBookDTOS);
 
-        // Run the test
-        final Response result = userResourceUnderTest.getUnreturnedBooks(0L);
-
-        // Verify the results
+        final Response result = userResourceUnderTest.getUnreturnedBooks(1L);
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetUnreturnedBooks_UserServiceReturnsNoItems() {
-        // Setup
-        when(mockUserService.getUnreturnedBooks(0L)).thenReturn(Collections.emptyList());
+        when(mockUserService.getUnreturnedBooks(1L)).thenReturn(Collections.emptyList());
 
-        // Run the test
-        final Response result = userResourceUnderTest.getUnreturnedBooks(0L);
-
-        // Verify the results
+        final Response result = userResourceUnderTest.getUnreturnedBooks(1L);
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testReturnBook() {
-        // Setup
-        // Run the test
-        final Response result = userResourceUnderTest.returnBook(0L, 0L);
-
-        // Verify the results
-        verify(mockUserService).getBook(0L, 0L);
+        final Response result = userResourceUnderTest.returnBook(1L, 1L);
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
+        verify(mockUserService).returnBook(1L, 1L);
     }
 
     @Test
     void testGetAllBooks() {
-        // Setup
-        // Configure UserService.getAllBooks(...).
-        final List<UserBooksDTO> userBooksDTOS = List.of(new UserBooksDTO(0L, "name", false));
-        when(mockUserService.getAllBooks(0L)).thenReturn(userBooksDTOS);
+        final UserBooksDTO userBooksDTO = new UserBooksDTO(1L, "bookName", true);
+        final List<UserBooksDTO> userBooksDTOS = List.of(userBooksDTO);
+        when(mockUserService.getAllBooks(1L)).thenReturn(userBooksDTOS);
 
-        // Run the test
-        final Response result = userResourceUnderTest.getAllBooks(0L);
-
-        // Verify the results
+        final Response result = userResourceUnderTest.getAllBooks(1L);
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetAllBooks_UserServiceReturnsNoItems() {
-        // Setup
-        when(mockUserService.getAllBooks(0L)).thenReturn(Collections.emptyList());
+        when(mockUserService.getAllBooks(1L)).thenReturn(Collections.emptyList());
 
-        // Run the test
-        final Response result = userResourceUnderTest.getAllBooks(0L);
-
-        // Verify the results
+        final Response result = userResourceUnderTest.getAllBooks(1L);
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetUsersWithBooksDueInLessThanTwoDays() {
-        // Setup
-        // Configure UserService.getUsersWithBooksDueInLessThanTwoDays(...).
-        final List<EmailSchedulerDTO> emailSchedulerDTOS = List.of(new EmailSchedulerDTO("facultyNumber", "email"));
+        final EmailSchedulerDTO emailSchedulerDTO = new EmailSchedulerDTO("facultyNumber", "email");
+        final List<EmailSchedulerDTO> emailSchedulerDTOS = List.of(emailSchedulerDTO);
         when(mockUserService.getUsersWithBooksDueInLessThanTwoDays()).thenReturn(emailSchedulerDTOS);
 
-        // Run the test
         final Response result = userResourceUnderTest.getUsersWithBooksDueInLessThanTwoDays();
-
-        // Verify the results
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 
     @Test
     void testGetUsersWithBooksDueInLessThanTwoDays_UserServiceReturnsNoItems() {
-        // Setup
         when(mockUserService.getUsersWithBooksDueInLessThanTwoDays()).thenReturn(Collections.emptyList());
 
-        // Run the test
         final Response result = userResourceUnderTest.getUsersWithBooksDueInLessThanTwoDays();
-
-        // Verify the results
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 }

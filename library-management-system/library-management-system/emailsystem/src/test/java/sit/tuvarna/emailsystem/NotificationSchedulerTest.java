@@ -17,7 +17,7 @@ import sit.tuvarna.core.models.users.EmailSchedulerDTO;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -44,7 +44,7 @@ class NotificationSchedulerTest {
     void setUp() {
         notificationSchedulerUnderTest.mailerService = mockMailerService;
         notificationSchedulerUnderTest.em = mockEm;
-        notificationSchedulerUnderTest.setClient(mockClient);
+        notificationSchedulerUnderTest.client = mockClient;
     }
 
     @Test
@@ -64,6 +64,21 @@ class NotificationSchedulerTest {
     }
 
     @Test
+    void testSendReminderEmails_Failure() {
+        // Setup
+        when(mockClient.target("http://localhost:8089/api/users/due-soon")).thenReturn(mockWebTarget);
+        when(mockWebTarget.request(MediaType.APPLICATION_JSON)).thenReturn(mockInvocationBuilder);
+        when(mockInvocationBuilder.get()).thenReturn(mockResponse);
+        when(mockResponse.getStatus()).thenReturn(500);
+
+        // Run the test
+        notificationSchedulerUnderTest.sendReminderEmails(null);
+
+        // Verify the results
+        verify(mockMailerService, never()).sendReminderEmail(any(EmailSchedulerDTO.class));
+    }
+
+    @Test
     void testGetUsersWithBooksDueInLessThanTwoDays() {
         // Setup
         when(mockClient.target("http://localhost:8089/api/users/due-soon")).thenReturn(mockWebTarget);
@@ -78,4 +93,5 @@ class NotificationSchedulerTest {
         // Verify the results
         assertNotNull(result);
     }
+
 }

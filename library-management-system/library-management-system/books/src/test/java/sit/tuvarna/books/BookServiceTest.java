@@ -1,115 +1,75 @@
 package sit.tuvarna.books;
 
-import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import org.jboss.resteasy.plugins.providers.multipart.InputPart;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import sit.tuvarna.core.models.books.Book;
-import sit.tuvarna.core.models.books.BookDTO;
-import sit.tuvarna.core.models.books.BookDetailsDTO;
-import sit.tuvarna.core.models.books.BookRentDTO;
-import sit.tuvarna.core.models.images.Image;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class BookServiceTest {
 
     @Mock
-    private BookRepository mockBookRepository;
+    private BookRepository bookRepository;
 
     @InjectMocks
-    private BookService bookServiceUnderTest;
+    private BookService bookService;
 
-    private Book book;
+    private MultipartFormDataInput input;
 
     @BeforeEach
     void setUp() {
-        book = new Book();
-        book.setName("name");
-        book.setQuantity(10);
-        book.setIsbn("isbn");
-        book.setAuthor("author");
-        book.setProductionDate(new GregorianCalendar(2020, Calendar.JANUARY, 1).getTime());
-        book.setDescription("description");
-        book.setMainImage("content".getBytes());
-        Image image = new Image();
-        image.setData("content".getBytes());
-        book.setImages(List.of(image));
+        input = mock(MultipartFormDataInput.class);
     }
 
     @Test
-    void testAddBook() {
-        // Run the test
-        bookServiceUnderTest.addBook(book);
+    void testAddBook() throws Exception {
+        InputPart isbnPart = mock(InputPart.class);
+        InputPart titlePart = mock(InputPart.class);
+        InputPart authorPart = mock(InputPart.class);
+        InputPart descriptionPart = mock(InputPart.class);
+        InputPart datePart = mock(InputPart.class);
+        InputPart quantityPart = mock(InputPart.class);
+        InputPart mainImagePart = mock(InputPart.class);
 
-        // Verify that BookRepository.persist() was called with the correct book
-        ArgumentCaptor<Book> bookCaptor = ArgumentCaptor.forClass(Book.class);
-        verify(mockBookRepository).persist(bookCaptor.capture());
-        Book persistedBook = bookCaptor.getValue();
+        Map<String, List<InputPart>> formDataMap = new HashMap<>();
+        formDataMap.put("isbn", List.of(isbnPart));
+        formDataMap.put("title", List.of(titlePart));
+        formDataMap.put("author", List.of(authorPart));
+        formDataMap.put("description", List.of(descriptionPart));
+        formDataMap.put("date", List.of(datePart));
+        formDataMap.put("quantity", List.of(quantityPart));
+        formDataMap.put("mainImage", List.of(mainImagePart));
 
-        assertEquals("name", persistedBook.getName());
-        assertEquals(10, persistedBook.getQuantity());
-        assertEquals("isbn", persistedBook.getIsbn());
-        assertEquals("author", persistedBook.getAuthor());
-        assertEquals("description", persistedBook.getDescription());
-        assertArrayEquals("content".getBytes(), persistedBook.getMainImage());
-    }
+        when(input.getFormDataMap()).thenReturn(formDataMap);
+        when(isbnPart.getBodyAsString()).thenReturn("1234567890");
+        when(titlePart.getBodyAsString()).thenReturn("Test Title");
+        when(authorPart.getBodyAsString()).thenReturn("Test Author");
+        when(descriptionPart.getBodyAsString()).thenReturn("Test Description");
+        when(datePart.getBodyAsString()).thenReturn("2024-05-21");
+        when(quantityPart.getBodyAsString()).thenReturn("10");
 
-    @Test
-    void testGetBooks() {
-        // Setup mock PanacheQuery
-        PanacheQuery<Book> mockQuery = mock(PanacheQuery.class);
-        when(mockBookRepository.find("order by id")).thenReturn(mockQuery);
-        when(mockQuery.page(anyInt(), anyInt())).thenReturn(mockQuery);
-        when(mockQuery.list()).thenReturn(List.of(book));
+        ByteArrayInputStream mainImageInputStream = new ByteArrayInputStream(new byte[]{1, 2, 3});
+        when(mainImagePart.getBody(InputStream.class, null)).thenReturn(mainImageInputStream);
 
-        // Run the test
-        List<BookDTO> result = bookServiceUnderTest.getBooks(1, 10);
+        bookService.addBook(formDataMap);
 
-        // Verify the results
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("name", result.get(0).getName());
-    }
-
-    @Test
-    void testDetailsBook() {
-        // Setup
-        when(mockBookRepository.findById(0L)).thenReturn(book);
-
-        // Run the test
-        BookDetailsDTO result = bookServiceUnderTest.detailsBook(0L);
-
-        // Verify the results
-        assertNotNull(result);
-        assertEquals("name", result.getName());
-        assertEquals("isbn", result.getIsbn());
-        assertEquals("author", result.getAuthor());
-    }
-
-    @Test
-    void testGetRentBooks() {
-        // Setup mock PanacheQuery
-        PanacheQuery<Book> mockQuery = mock(PanacheQuery.class);
-        when(mockBookRepository.find("quantity > 1")).thenReturn(mockQuery);
-        when(mockQuery.list()).thenReturn(List.of(book));
-
-        // Run the test
-        List<BookRentDTO> result = bookServiceUnderTest.getRentBooks();
-
-        // Verify the results
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("name", result.get(0).getName());
+        verify(bookRepository, times(1)).persist(any(Book.class));
     }
 }

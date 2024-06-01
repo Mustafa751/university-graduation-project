@@ -3,7 +3,14 @@ package sit.tuvarna.userpackage.users;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import org.jboss.logging.Logger;
 import sit.tuvarna.books.BookRepository;
+import sit.tuvarna.core.models.JwtResponse;
 import sit.tuvarna.userpackage.RentalRepository;
 import sit.tuvarna.core.models.books.Book;
 import sit.tuvarna.core.models.books.UnreturnedBookDTO;
@@ -13,9 +20,13 @@ import sit.tuvarna.core.models.users.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Singleton
 public class UserService {
+
+    private static final Logger LOG = Logger.getLogger(UserService.class);
+
     @Inject
     UserRepository userRepository;
 
@@ -25,31 +36,66 @@ public class UserService {
     @Inject
     RentalRepository rentalRepository;
 
-    public List<User> getUsers() {
-        return userRepository.listAll();
+    private final Client client = ClientBuilder.newClient();
+
+    public List<UserDTO> getUsers() {
+        return userRepository.listAll().stream()
+                .map(user -> new UserDTO(user.id, user.getFacultyNumber()))
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDTO> getRentUsers() {
+        return userRepository.listAll().stream()
+                .map(user -> new UserDTO(user.id, user.getFacultyNumber()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
     public UserStateManagementDTO login(LoginRequest loginRequest) {
+        UserStateManagementDTO isValidUser = findUserByCredentials(loginRequest);
+
+        if (isValidUser == null) {
+            throw new WebApplicationException("Invalid credentials", Response.Status.UNAUTHORIZED);
+        }
+
+        return isValidUser;
+    }
+
+    private UserStateManagementDTO findUserByCredentials(LoginRequest loginRequest) {
         try {
-            UserStateManagementDTO user = userRepository.find("facultyNumber = ?1 and egn = ?2", loginRequest.getFakNumber(), loginRequest.getEgn())
+            return userRepository.find("facultyNumber = ?1 and egn = ?2", loginRequest.getFakNumber(), loginRequest.getEgn())
                     .project(UserStateManagementDTO.class)
                     .firstResult();
-            return user;
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            LOG.error("Login error", e);
+            throw new WebApplicationException("Internal server error", Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public String generateJwt(UserStateManagementDTO user) {
+        Response serviceResponse = client.target("http://localhost:8083/jwt")
+                .queryParam("userId", String.valueOf(user.getId()))
+                .queryParam("email", user.getEmail())
+                .queryParam("role", user.getRole())
+                .request(MediaType.APPLICATION_JSON)
+                .get();
+
+        if (serviceResponse.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
+            throw new WebApplicationException("Failed to generate token", Response.Status.BAD_GATEWAY);
+        }
+
+        return serviceResponse.readEntity(JwtResponse.class).getJwt();
     }
 
     @Transactional
     public List<UserSummaryDTO> getUsersSummary() {
-        List<User> users = userRepository.listAll();
-        return users.stream()
-                .map(user -> new UserSummaryDTO(user.id, user.getFacultyNumber(), user.getEmail(), user.getPhoneNumber())).toList();
+        return userRepository.listAll().stream()
+                .map(user -> new UserSummaryDTO(user.id, user.getFacultyNumber(), user.getEmail(), user.getPhoneNumber()))
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public void getBook(Long userId, Long bookId) {
+    public void returnBook(Long userId, Long bookId) {
         User user = userRepository.findById(userId);
         Book book = bookRepository.findById(bookId);
         Rental rental = rentalRepository.find("user.id = ?1 and book.id = ?2", userId, bookId).firstResult();
@@ -64,7 +110,7 @@ public class UserService {
         try {
             rental.delete();
         } catch (Exception e) {
-            e.getMessage();
+            LOG.error("Failed to delete rental", e);
         }
     }
 
@@ -72,7 +118,8 @@ public class UserService {
         User user = userRepository.findById(userId);
         return user.getRentals().stream()
                 .filter(rental -> rental.getRentalEndDate().isAfter(LocalDateTime.now()))
-                .map(rental -> new UnreturnedBookDTO(rental.getBook().id, rental.getBook().name, rental.getRentalEndDate())).toList();
+                .map(rental -> new UnreturnedBookDTO(rental.getBook().id, rental.getBook().name, rental.getRentalEndDate()))
+                .collect(Collectors.toList());
     }
 
     public List<UserBooksDTO> getAllBooks(Long userId) {
@@ -81,9 +128,9 @@ public class UserService {
                 .map(rental -> new UserBooksDTO(
                         rental.getBook().id,
                         rental.getBook().name,
-                        rental.getRentalEndDate().isAfter(LocalDateTime.now()) // Determine if the book is returned
+                        rental.getRentalEndDate().isAfter(LocalDateTime.now())
                 ))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public List<EmailSchedulerDTO> getUsersWithBooksDueInLessThanTwoDays() {
@@ -94,6 +141,6 @@ public class UserService {
         return rentals.stream()
                 .map(rental -> new EmailSchedulerDTO(rental.getUser().getFacultyNumber(), rental.getUser().getEmail()))
                 .distinct()
-                .toList();
+                .collect(Collectors.toList());
     }
 }

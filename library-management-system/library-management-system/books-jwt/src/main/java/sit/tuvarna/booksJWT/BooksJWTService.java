@@ -18,14 +18,17 @@ import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Singleton
 public class BooksJWTService {
 
+    private static final Logger LOGGER = Logger.getLogger(BooksJWTService.class.getName());
+
     private JWTAuthContextInfo contextInfo;
 
     public BooksJWTService() {
-        // Load the public key from the classpath
         PublicKey publicKey = loadPublicKey("publicKey.pem");
         this.contextInfo = new JWTAuthContextInfo(publicKey, "books-jwt");
     }
@@ -51,6 +54,7 @@ public class BooksJWTService {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             return keyFactory.generatePublic(spec);
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Failed to load public key", e);
             throw new RuntimeException("Failed to load public key", e);
         }
     }
@@ -70,52 +74,44 @@ public class BooksJWTService {
 
     public boolean checkJwtValidity(String jwtToken) {
         try {
-            // Parse the JWT token
             JWTCallerPrincipal principal = DefaultJWTCallerPrincipalFactory.instance().parse(jwtToken, contextInfo);
 
-            // Check the issuer
             if (!"books-jwt".equals(principal.getIssuer())) {
-                System.out.println("Invalid issuer.");
+                LOGGER.warning("Invalid issuer.");
                 return false;
             }
 
-            // Check if the token is expired
             long issuedAtTime = principal.getIssuedAtTime();
             long currentTime = System.currentTimeMillis();
             long oneHourInMilliseconds = 3600 * 1000;
 
-            // Check if more than one hour has passed since the token was issued
             if (currentTime - issuedAtTime > oneHourInMilliseconds) {
-                System.out.println("Token has been valid for more than one hour and is now considered invalid.");
+                LOGGER.warning("Token has been valid for more than one hour and is now considered invalid.");
                 return false;
             }
 
             return true;
         } catch (Exception e) {
-            System.out.println("Invalid token: " + e.getMessage());
-            e.printStackTrace(); // Add this line to print the stack trace for further debugging
+            LOGGER.log(Level.SEVERE, "Invalid token", e);
             return false;
         }
     }
 
     public Map<String, Object> parseJwt(String jwtToken) {
         try {
-            // Parse the JWT token
             JWTCallerPrincipal principal = DefaultJWTCallerPrincipalFactory.instance().parse(jwtToken, contextInfo);
 
-            // Extract user details from the token
             String userId = principal.getName();
             String email = principal.getClaim("email");
             String role = principal.getClaim("role");
 
-            // Build the map with user details
             return Map.of(
                     "userId", userId,
                     "email", email,
                     "role", role
             );
         } catch (Exception e) {
-            System.out.println("Failed to parse token: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Failed to parse token", e);
             return null;
         }
     }

@@ -1,6 +1,5 @@
 package sit.tuvarna.books;
 
-
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -8,28 +7,21 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
-import sit.tuvarna.core.models.books.Book;
 import sit.tuvarna.core.models.books.BookDetailsDTO;
-import sit.tuvarna.core.models.images.Image;
 import sit.tuvarna.core.models.rental.RentRequestDTO;
-import sit.tuvarna.core.models.rental.Rental;
-import sit.tuvarna.core.models.users.User;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Path("/api/books")
 @ApplicationScoped
 public class BookResource {
-    List<Book> books = new ArrayList<>();
+
+    private static final Logger LOGGER = Logger.getLogger(BookResource.class.getName());
 
     @Inject
     BookService bookService;
@@ -43,71 +35,61 @@ public class BookResource {
             if (!formParts.containsKey("isbn") || !formParts.containsKey("title")) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing required fields.").build();
             }
-            Book book = new Book();
-            book.setIsbn(getFormData(formParts, "isbn"));
-            book.setName(getFormData(formParts, "title"));
-            book.setAuthor(getFormData(formParts, "author"));
-            book.setDescription(getFormData(formParts, "description"));
-            book.setProductionDate(new SimpleDateFormat("yyyy-MM-dd").parse(getFormData(formParts, "date")));
-            book.setQuantity(Integer.parseInt(getFormData(formParts, "quantity")));
-            book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
-
-            processImages(formParts, book);
-            bookService.addBook(book);
+            bookService.addBook(formParts);
             return Response.ok().build();
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error processing input data", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error processing input data: " + e.getMessage()).build();
         }
     }
 
-    private void processImages(Map<String, List<InputPart>> formParts, Book book) throws IOException {
-        List<InputPart> imageParts = formParts.get("images");
-        if (imageParts != null) {
-            for (InputPart part : imageParts) {
-                byte[] imageData = extractBytes(part);
-                Image image = new Image();
-                image.setData(imageData);
-                book.addImage(image);
-            }
-        }
-    }
-
-    private byte[] extractBytes(InputPart part) throws IOException {
-        InputStream inputStream = part.getBody(InputStream.class, null);
-        return IOUtils.toByteArray(inputStream);
-    }
-
-    private String getFormData(Map<String, List<InputPart>> formParts, String key) throws IOException {
-        return formParts.get(key).get(0).getBodyAsString();
-    }
-
-
     @Path("{id}")
     @RolesAllowed("admin")
     @DELETE
-    public Response deleteBook(@PathParam("id")  Long id){
-        books.removeIf(book -> book.id.equals(id));
-        return Response.ok(books).build();
+    public Response deleteBook(@PathParam("id") Long id) {
+        try {
+            bookService.deleteBook(id);
+            return Response.ok().build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error deleting book", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error deleting book: " + e.getMessage()).build();
+        }
     }
+
     @Path("{id}")
     @GET
-    public Response detailsBook(@PathParam("id")  Long id){
-        BookDetailsDTO bookDetailsDTO = bookService.detailsBook(id);
-        return Response.ok(bookDetailsDTO).build();
+    public Response detailsBook(@PathParam("id") Long id) {
+        try {
+            BookDetailsDTO bookDetailsDTO = bookService.detailsBook(id);
+            return Response.ok(bookDetailsDTO).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving book details", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error retrieving book details: " + e.getMessage()).build();
+        }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getBooks(@QueryParam("page") @DefaultValue("1") int page,
                              @QueryParam("limit") @DefaultValue("10") int limit) {
-        return Response.ok(bookService.getBooks(page, limit)).build();
+        try {
+            return Response.ok(bookService.getBooks(page, limit)).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving books", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error retrieving books: " + e.getMessage()).build();
+        }
     }
 
     @GET
     @Path("/rent-books")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getBooks() {
-        return Response.ok(bookService.getRentBooks()).build();
+    public Response getRentableBooks() {
+        try {
+            return Response.ok(bookService.getRentBooks()).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving rentable books", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error retrieving rentable books: " + e.getMessage()).build();
+        }
     }
 
     @POST
@@ -117,26 +99,11 @@ public class BookResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response rentBook(RentRequestDTO rentRequest) {
         try {
-            Book book = Book.findById(rentRequest.bookId);
-            User user = User.findById(rentRequest.userId);
-            if (book == null || user == null || book.quantity <= 0) {
-                return Response.status(Response.Status.BAD_REQUEST).build();
-            }
-
-            book.quantity -= 1;
-            book.persist();
-
-            Rental rental = new Rental();
-            rental.setBook(book);
-            rental.setUser(user);
-            rental.setRentalStartDate(LocalDate.now().atStartOfDay());
-            rental.setRentalEndDate(LocalDate.parse(rentRequest.returnDate).atStartOfDay());
-            rental.persist();
+            bookService.rentBook(rentRequest);
+            return Response.ok().build();
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error renting book", e);
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
-
-        return Response.ok().build();
     }
-
 }

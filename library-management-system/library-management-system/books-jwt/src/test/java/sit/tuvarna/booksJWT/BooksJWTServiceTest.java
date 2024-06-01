@@ -27,7 +27,6 @@ class BooksJWTServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Manually initialize the BooksJWTService with the public key
         PublicKey publicKey = loadPublicKey("publicKey.pem");
         booksJWTServiceUnderTest = new BooksJWTService(publicKey);
     }
@@ -55,47 +54,36 @@ class BooksJWTServiceTest {
 
     @Test
     void testGenerateJwt() {
-        // Run the test
         String token = booksJWTServiceUnderTest.generateJwt("userId", "email@example.com", Roles.ADMIN);
 
-        // Verify the result
         assertNotNull(token);
         assertTrue(token.length() > 0);
     }
 
     @Test
     void testCheckJwtValidity() {
-        // Setup: Generate a valid JWT
         String token = booksJWTServiceUnderTest.generateJwt("userId", "email@example.com", Roles.ADMIN);
 
-        // Run the test
         boolean isValid = booksJWTServiceUnderTest.checkJwtValidity(token);
 
-        // Verify the result
         assertTrue(isValid);
     }
 
     @Test
     void testCheckJwtValidity_InvalidToken() {
-        // Setup: Create an invalid JWT token
         String invalidToken = "invalid.jwt.token";
 
-        // Run the test
         boolean isValid = booksJWTServiceUnderTest.checkJwtValidity(invalidToken);
 
-        // Verify the result
         assertFalse(isValid);
     }
 
     @Test
     void testParseJwt() {
-        // Setup: Generate a valid JWT
         String token = booksJWTServiceUnderTest.generateJwt("userId", "email@example.com", Roles.ADMIN);
 
-        // Run the test
         Map<String, Object> claims = booksJWTServiceUnderTest.parseJwt(token);
 
-        // Verify the result
         assertNotNull(claims);
         assertEquals("userId", claims.get("userId"));
         assertEquals("email@example.com", claims.get("email"));
@@ -104,13 +92,10 @@ class BooksJWTServiceTest {
 
     @Test
     void testParseJwt_InvalidToken() {
-        // Setup: Create an invalid JWT token
         String invalidToken = "invalid.jwt.token";
 
-        // Run the test
         Map<String, Object> claims = booksJWTServiceUnderTest.parseJwt(invalidToken);
 
-        // Verify the result
         assertNull(claims);
     }
 }
