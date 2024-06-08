@@ -15,8 +15,18 @@ public class UserToBeCreatedService {
         User newUser = new User();
         newUser.setFacultyNumber(userToBeCreated.getFakNumber());
         newUser.setEgn(userToBeCreated.getEgn());
+        newUser.setFirstName(userToBeCreated.getFirstName());
+        newUser.setMiddleName(userToBeCreated.getMiddleName());
+        newUser.setLastName(userToBeCreated.getLastName());
+        newUser.setGender(userToBeCreated.getGender());
+        newUser.setAddress(userToBeCreated.getAddress());
         newUser.setEmail(userToBeCreated.getEmail());
         newUser.setPhoneNumber(userToBeCreated.getPhoneNumber());
+        newUser.setCategory(userToBeCreated.getCategory());
+        newUser.setEducation(userToBeCreated.getEducation());
+        newUser.setFaculty(userToBeCreated.getFaculty());
+        newUser.setSpecialty(userToBeCreated.getSpecialty());
+        newUser.setCourse(userToBeCreated.getCourse());
         newUser.setRole(role);
 
         newUser.persist();  // Persist the new User

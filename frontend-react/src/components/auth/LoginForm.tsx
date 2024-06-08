@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import {
   Flex,
   FormControl,
@@ -14,8 +14,16 @@ import { useNavigate } from "react-router-dom";
 function LoginForm() {
   const toast = useToast();
   const [formData, setFormData] = useState({ fakNumber: "", egn: "" });
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
+  const [logoutCalled, setLogoutCalled] = useState(false);
+
+  useEffect(() => {
+    if (!logoutCalled) {
+      logout(); // Ensure the user is logged out when the component mounts
+      setLogoutCalled(true);
+    }
+  }, [logout, logoutCalled]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

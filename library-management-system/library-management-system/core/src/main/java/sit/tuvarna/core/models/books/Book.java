@@ -2,6 +2,7 @@ package sit.tuvarna.core.models.books;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import sit.tuvarna.core.models.enums.BookKnowledgeArea;
 import sit.tuvarna.core.models.images.Image;
 
 import java.util.ArrayList;
@@ -24,6 +25,29 @@ public class Book extends PanacheEntity {
     public byte[] mainImage;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     public List<Image> images;
+
+    // New fields
+    public String subtitle;
+    public String parallelTitle;
+    public String edition;
+    public String placeOfPublication;
+    public String publisher;
+    public String language;
+    public String sourceTitle;
+    public String volume;
+    public String issueNumber;
+    public String pages;
+    public String publicationYear;
+    @Column(length = 5000)
+    public String notes;
+    public String price;
+    public String keywords;
+    public String classificationIndex;
+    @Enumerated(EnumType.STRING)
+    private BookKnowledgeArea knowledgeArea;
+
+    @Enumerated(EnumType.STRING)
+    private BookKnowledgeArea documentType;
 
     // Constructors
     public Book() {
@@ -67,6 +91,76 @@ public class Book extends PanacheEntity {
         this.images.add(image);
     }
 
+    // New setters
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public void setParallelTitle(String parallelTitle) {
+        this.parallelTitle = parallelTitle;
+    }
+
+    public void setEdition(String edition) {
+        this.edition = edition;
+    }
+
+    public void setPlaceOfPublication(String placeOfPublication) {
+        this.placeOfPublication = placeOfPublication;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public void setSourceTitle(String sourceTitle) {
+        this.sourceTitle = sourceTitle;
+    }
+
+    public void setVolume(String volume) {
+        this.volume = volume;
+    }
+
+    public void setIssueNumber(String issueNumber) {
+        this.issueNumber = issueNumber;
+    }
+
+    public void setPages(String pages) {
+        this.pages = pages;
+    }
+
+    public void setPublicationYear(String publicationYear) {
+        this.publicationYear = publicationYear;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    public void setClassificationIndex(String classificationIndex) {
+        this.classificationIndex = classificationIndex;
+    }
+
+    public void setKnowledgeArea(BookKnowledgeArea knowledgeArea) {
+        this.knowledgeArea = knowledgeArea;
+    }
+
+    public void setDocumentType(BookKnowledgeArea documentType) {
+        this.documentType = documentType;
+    }
+
+    // Getters for all fields
     public String getName() {
         return name;
     }
@@ -91,11 +185,79 @@ public class Book extends PanacheEntity {
         return description;
     }
 
+    public byte[] getMainImage() {
+        return mainImage;
+    }
+
     public List<Image> getImages() {
         return images;
     }
 
-    public byte[] getMainImage() {
-        return mainImage;
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public String getParallelTitle() {
+        return parallelTitle;
+    }
+
+    public String getEdition() {
+        return edition;
+    }
+
+    public String getPlaceOfPublication() {
+        return placeOfPublication;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public String getSourceTitle() {
+        return sourceTitle;
+    }
+
+    public String getVolume() {
+        return volume;
+    }
+
+    public String getIssueNumber() {
+        return issueNumber;
+    }
+
+    public String getPages() {
+        return pages;
+    }
+
+    public String getPublicationYear() {
+        return publicationYear;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public String getKeywords() {
+        return keywords;
+    }
+
+    public String getClassificationIndex() {
+        return classificationIndex;
+    }
+
+    public BookKnowledgeArea getKnowledgeArea() {
+        return knowledgeArea;
+    }
+
+    public BookKnowledgeArea getDocumentType() {
+        return documentType;
     }
 }

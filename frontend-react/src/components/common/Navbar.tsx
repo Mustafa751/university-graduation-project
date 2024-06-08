@@ -20,6 +20,7 @@ function Navbar() {
   const { isLoggedIn, userRole, userId } = useSelector(
     (state: RootState) => state.user
   );
+  console.log("Navbar state:", { isLoggedIn, userRole, userId });
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -69,7 +70,7 @@ function Navbar() {
             >
               UsersToBeCreated
             </Button>
-            {userRole === "admin" && (
+            {userRole?.toLowerCase() === "admin" && (
               <Button
                 mr="2"
                 colorScheme="teal"

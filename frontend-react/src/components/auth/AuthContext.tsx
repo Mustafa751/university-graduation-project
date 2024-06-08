@@ -5,7 +5,7 @@ import {
   login as loginAction,
   logout as logoutAction,
 } from "../../slices/userSlice"; // Import the actions from userSlice
-import { AuthContextType, User } from "../interfaces/userInterfaces"; // Import the AuthContextType
+import { AuthContextType, UserResponse } from "../interfaces/userInterfaces"; // Import the AuthContextType
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useNavigate } from "react-router-dom";
 
@@ -38,27 +38,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         body: JSON.stringify({ fakNumber: username, egn: password }),
       };
 
-      sendRequest<User>(
+      sendRequest<UserResponse>(
         "http://localhost:8089/api/users/login",
         requestOptions,
         navigate,
         logout
       )
         .then((response) => {
-          if (response) {
-            const user = {
-              id: response.id,
-              email: response.email,
-              phoneNumber: response.phoneNumber,
-              facultyNumber: response.facultyNumber,
-              username: response.username,
-              role: response.role,
-            };
+          if (response && response.user) {
+            const { user } = response;
             dispatch(
               loginAction({
                 user,
-                userRole: response.role,
-                userId: response.id,
+                userRole: user.role,
+                userId: user.id,
               })
             );
             resolve();

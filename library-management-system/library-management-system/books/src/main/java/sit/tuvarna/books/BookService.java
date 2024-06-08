@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import sit.tuvarna.core.models.books.*;
+import sit.tuvarna.core.models.enums.BookKnowledgeArea;
 import sit.tuvarna.core.models.images.Image;
 import sit.tuvarna.core.models.rental.RentRequestDTO;
 import sit.tuvarna.core.models.rental.Rental;
@@ -37,6 +38,23 @@ public class BookService {
         book.setDescription(getFormData(formParts, "description"));
         book.setProductionDate(new SimpleDateFormat("yyyy-MM-dd").parse(getFormData(formParts, "date")));
         book.setQuantity(Integer.parseInt(getFormData(formParts, "quantity")));
+        book.setSubtitle(getFormData(formParts, "subtitle"));
+        book.setParallelTitle(getFormData(formParts, "parallelTitle"));
+        book.setEdition(getFormData(formParts, "edition"));
+        book.setPlaceOfPublication(getFormData(formParts, "placeOfPublication"));
+        book.setPublisher(getFormData(formParts, "publisher"));
+        book.setLanguage(getFormData(formParts, "language"));
+        book.setSourceTitle(getFormData(formParts, "sourceTitle"));
+        book.setVolume(getFormData(formParts, "volume"));
+        book.setIssueNumber(getFormData(formParts, "issueNumber"));
+        book.setPages(getFormData(formParts, "pages"));
+        book.setPublicationYear(getFormData(formParts, "publicationYear"));
+        book.setNotes(getFormData(formParts, "notes"));
+        book.setPrice(getFormData(formParts, "price"));
+        book.setKeywords(getFormData(formParts, "keywords"));
+        book.setClassificationIndex(getFormData(formParts, "classificationIndex"));
+        book.setKnowledgeArea(BookKnowledgeArea.valueOf(getFormData(formParts, "knowledgeArea")));
+        book.setDocumentType(BookKnowledgeArea.valueOf(getFormData(formParts, "documentType")));
         book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
 
         processImages(formParts, book);
@@ -126,5 +144,55 @@ public class BookService {
         rental.setRentalStartDate(LocalDate.now().atStartOfDay());
         rental.setRentalEndDate(LocalDate.parse(rentRequest.returnDate).atStartOfDay());
         rental.persist();
+    }
+
+    public List<Book> searchBooks(String query) {
+        return Book.find("lower(name) like ?1", "%" + query.toLowerCase() + "%").list();
+    }
+
+    public Book getBookById(Long id) {
+        return Book.findById(id);
+    }
+
+    @Transactional
+    public void updateBook(Long id, Map<String, List<InputPart>> formParts) throws Exception {
+        Book book = Book.findById(id);
+        if (book == null) {
+            throw new Exception("Book not found");
+        }
+
+        book.setIsbn(getFormData(formParts, "isbn"));
+        book.setName(getFormData(formParts, "title"));
+        book.setAuthor(getFormData(formParts, "author"));
+        book.setDescription(getFormData(formParts, "description"));
+        book.setProductionDate(new SimpleDateFormat("yyyy-MM-dd").parse(getFormData(formParts, "date")));
+        book.setQuantity(Integer.parseInt(getFormData(formParts, "quantity")));
+        book.setSubtitle(getFormData(formParts, "subtitle"));
+        book.setParallelTitle(getFormData(formParts, "parallelTitle"));
+        book.setEdition(getFormData(formParts, "edition"));
+        book.setPlaceOfPublication(getFormData(formParts, "placeOfPublication"));
+        book.setPublisher(getFormData(formParts, "publisher"));
+        book.setLanguage(getFormData(formParts, "language"));
+        book.setSourceTitle(getFormData(formParts, "sourceTitle"));
+        book.setVolume(getFormData(formParts, "volume"));
+        book.setIssueNumber(getFormData(formParts, "issueNumber"));
+        book.setPages(getFormData(formParts, "pages"));
+        book.setPublicationYear(getFormData(formParts, "publicationYear"));
+        book.setNotes(getFormData(formParts, "notes"));
+        book.setPrice(getFormData(formParts, "price"));
+        book.setKeywords(getFormData(formParts, "keywords"));
+        book.setClassificationIndex(getFormData(formParts, "classificationIndex"));
+        book.setKnowledgeArea(BookKnowledgeArea.valueOf(getFormData(formParts, "knowledgeArea")));
+        book.setDocumentType(BookKnowledgeArea.valueOf(getFormData(formParts, "documentType")));
+
+        if (formParts.containsKey("mainImage")) {
+            book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
+        }
+
+        if (formParts.containsKey("images")) {
+            processImages(formParts, book);
+        }
+
+        book.persist();
     }
 }

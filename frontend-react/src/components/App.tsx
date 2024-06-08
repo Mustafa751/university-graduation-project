@@ -5,22 +5,25 @@ import i18n from "../i18n"; // Import your i18n configuration
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/routes";
 import { Provider } from "react-redux";
-import store from "../store/store";
+import { store, persistor } from "../store/store";
+import { PersistGate } from "redux-persist/integration/react";
 // Import ReactNode
 
 function App() {
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <ChakraProvider>
-          <AuthProvider>
-            <I18nextProvider i18n={i18n}>
-              <AppRoutes />
-              {/* Render UserDetails directly */}
-            </I18nextProvider>
-          </AuthProvider>
-        </ChakraProvider>
-      </BrowserRouter>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <ChakraProvider>
+            <AuthProvider>
+              <I18nextProvider i18n={i18n}>
+                <AppRoutes />
+                {/* Render UserDetails directly */}
+              </I18nextProvider>
+            </AuthProvider>
+          </ChakraProvider>
+        </BrowserRouter>
+      </PersistGate>
     </Provider>
   );
 }

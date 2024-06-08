@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import {
   Text,
   FormControl,
@@ -15,17 +15,18 @@ import {
   Select,
   SimpleGrid,
 } from "@chakra-ui/react";
-import Navbar from "../common/Navbar";
-import Footer from "../common/Footer";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { sendRequest } from "../hooks/http";
-import { BookKnowledgeArea } from "../interfaces/userInterfaces"; // Adjust the import path
+import { BookKnowledgeArea, BookDetails } from "../interfaces/userInterfaces"; // Adjust the import path
 
-const AddBook = () => {
+const EditBook = () => {
+  const { id } = useParams<{ id: string }>();
   const toast = useToast();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [, setBook] = useState<BookDetails | null>(null);
+
   const [isbn, setIsbn] = useState("");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
@@ -57,6 +58,52 @@ const AddBook = () => {
   const [documentType, setDocumentType] = useState<BookKnowledgeArea>(
     BookKnowledgeArea.Book
   );
+
+  useEffect(() => {
+    const fetchBook = async () => {
+      const requestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      try {
+        const data = await sendRequest<BookDetails>(
+          `http://localhost:8081/api/books/${id}`,
+          requestOptions,
+          navigate,
+          logout
+        );
+        setBook(data);
+        setIsbn(data.isbn);
+        setTitle(data.name);
+        setDate(new Date(data.productionDate).toISOString().split("T")[0]);
+        setAuthor(data.author);
+        setDescription(data.description);
+        setQuantity(data.quantity.toString());
+        setSubtitle(data.subtitle);
+        setParallelTitle(data.parallelTitle);
+        setEdition(data.edition);
+        setPlaceOfPublication(data.placeOfPublication);
+        setPublisher(data.publisher);
+        setLanguage(data.language);
+        setSourceTitle(data.sourceTitle);
+        setVolume(data.volume);
+        setIssueNumber(data.issueNumber);
+        setPages(data.pages);
+        setPublicationYear(data.publicationYear);
+        setNotes(data.notes);
+        setPrice(data.price);
+        setKeywords(data.keywords);
+        setClassificationIndex(data.classificationIndex);
+        setKnowledgeArea(data.knowledgeArea);
+        setDocumentType(data.documentType);
+      } catch (error) {
+        console.error("Error fetching book:", error);
+      }
+    };
+    fetchBook();
+  }, [id, navigate, logout]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -98,12 +145,12 @@ const AddBook = () => {
     }
 
     const requestOptions = {
-      method: "POST",
+      method: "PUT",
       body: formData,
     };
 
     sendRequest<Response>(
-      "http://localhost:8081/api/books",
+      `http://localhost:8081/api/books/${id}`,
       requestOptions,
       navigate,
       logout
@@ -111,15 +158,15 @@ const AddBook = () => {
       .then((response: Response) => {
         if (response.ok) {
           toast({
-            title: "Upload successful",
-            description: "Book added successfully",
+            title: "Update successful",
+            description: "Book updated successfully",
             status: "success",
             duration: 3000,
             isClosable: true,
             position: "top",
           });
         } else {
-          alert("Failed to add book");
+          alert("Failed to update book");
 
           response.text().then((text) => console.error(text)); // Log error message from the server
         }
@@ -150,10 +197,9 @@ const AddBook = () => {
 
   return (
     <Flex direction="column" minHeight="100vh">
-      <Navbar />
       <Flex direction="column" align="center" justify="center" flex="1" pt={10}>
         <Text fontSize="2xl" fontWeight="bold" mb={5}>
-          Add a New Book
+          Edit Book
         </Text>
         <Box
           as="form"
@@ -427,13 +473,12 @@ const AddBook = () => {
             </FormControl>
           </SimpleGrid>
           <Button type="submit" colorScheme="teal" width="full" mt={4}>
-            Submit
+            Save Changes
           </Button>
         </Box>
       </Flex>
-      <Footer />
     </Flex>
   );
 };
 
-export default AddBook;
+export default EditBook;

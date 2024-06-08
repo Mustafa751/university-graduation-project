@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   InputGroup,
   InputRightElement,
@@ -14,7 +14,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { debounce, throttle } from "lodash";
+import { debounce } from "lodash";
 import { useNavigate } from "react-router-dom";
 import { BookData } from "../interfaces/userInterfaces";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
@@ -30,7 +30,7 @@ function Book({ id, name, quantity, mainImage }: BookData) {
       borderRadius="lg"
       overflow="hidden"
       cursor="pointer"
-      onClick={() => navigate(`/book/${id}`)}
+      onClick={() => navigate(`/edit-book/${id}`)}
     >
       <Image src={`data:image/jpeg;base64,${mainImage}`} alt={name} />
       <Text mt="2" fontWeight="semibold">
@@ -41,22 +41,16 @@ function Book({ id, name, quantity, mainImage }: BookData) {
   );
 }
 
-function BooksDisplay() {
+function EditBooksDisplay() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [books, setBooks] = useState<BookData[]>([]);
-  const [page, setPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<BookData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const isFetching = useRef<boolean>(false);
 
   const fetchBooks = useCallback(async () => {
-    if (isFetching.current) return;
-    isFetching.current = true;
     setLoading(true);
     const requestOptions: SendRequestOptions = {
       method: "GET",
@@ -67,47 +61,50 @@ function BooksDisplay() {
 
     try {
       const data = await sendRequest<Array<BookData>>(
-        `http://localhost:8081/api/books?page=${page}&limit=10`,
+        `http://localhost:8081/api/books?page=1&limit=100`,
         requestOptions,
         navigate,
         logout
       );
 
-      const newBooks = data.map((item: BookData) => ({
-        id: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        mainImage: item.mainImage,
-      }));
-
-      setBooks((prevBooks) => {
-        const existingBookIds = new Set(prevBooks.map((book) => book.id));
-        const filteredBooks = newBooks.filter(
-          (book) => !existingBookIds.has(book.id)
-        );
-        return [...prevBooks, ...filteredBooks];
-      });
+      setBooks(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      isFetching.current = false;
       setLoading(false);
     }
-  }, [page, navigate, logout]);
+  }, [navigate, logout]);
 
   useEffect(() => {
     fetchBooks();
-  }, [fetchBooks, page]);
+  }, [fetchBooks]);
 
   const debouncedSearch = useCallback(
-    debounce((query) => {
-      const filtered = books.filter((book) =>
-        book.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filtered);
-      setIsSearching(true);
-    }, 300),
-    [books]
+    debounce(async (query) => {
+      if (query.length < 3) return;
+
+      const requestOptions: SendRequestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      try {
+        const data = await sendRequest<Array<BookData>>(
+          `http://localhost:8081/api/books/search?query=${query}`,
+          requestOptions,
+          navigate,
+          logout
+        );
+
+        setSearchResults(data);
+        setIsSearching(true);
+      } catch (error) {
+        console.error("Error searching books:", error);
+      }
+    }, 500),
+    [navigate, logout]
   );
 
   useEffect(() => {
@@ -117,27 +114,6 @@ function BooksDisplay() {
       setIsSearching(false);
     }
   }, [searchTerm, debouncedSearch]);
-
-  useEffect(() => {
-    if (observer.current) {
-      observer.current.disconnect();
-    }
-
-    observer.current = new IntersectionObserver(
-      throttle((entries) => {
-        if (entries[0].isIntersecting && !loading && !isFetching.current) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      }, 1000),
-      { threshold: 1.0 }
-    );
-
-    if (sentinelRef.current) {
-      observer.current.observe(sentinelRef.current);
-    }
-
-    return () => observer.current?.disconnect();
-  }, [loading]);
 
   return (
     <Flex direction="row" minH="100vh">
@@ -222,11 +198,10 @@ function BooksDisplay() {
             ))}
           </SimpleGrid>
           {loading && <Spinner color="teal.500" mt="4" />}
-          <div ref={sentinelRef}></div>
         </Flex>
       </Flex>
     </Flex>
   );
 }
 
-export default BooksDisplay;
+export default EditBooksDisplay;

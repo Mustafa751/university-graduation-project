@@ -1,3 +1,4 @@
+// src/slices/userSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from '../components/interfaces/userInterfaces';
 
@@ -33,6 +34,7 @@ const userSlice = createSlice({
       state.user = null;
       state.userRole = null;
       state.userId = null;
+      state.facultyNumber = null;
     },
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;

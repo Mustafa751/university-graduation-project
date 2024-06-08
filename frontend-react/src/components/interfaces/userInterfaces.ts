@@ -6,6 +6,13 @@ export interface Book {
   status: boolean;
 }
 
+export enum BookKnowledgeArea{
+  Book = "Book",
+  Article = "Article",
+  Periodic = "Periodic",
+  Reader = "Reader",
+}
+
 export interface User {
   id: number;
   email: string;
@@ -14,7 +21,9 @@ export interface User {
   username: string;
   role: string;
 }
-
+export interface UserResponse {
+  user: User;
+}
 export interface PersonalInfoProps {
   email: string;
   phoneNumber: string;
@@ -55,6 +64,38 @@ export interface BookData {
   name: string;
   quantity: number;
   mainImage: string; // This will now hold the Base64 string
+}
+
+export interface BookDetails {
+  productionDate: string | number | Date;
+  id: string;
+  isbn: string;
+  name: string;
+  title: string;
+  date: string;
+  author: string;
+  description: string;
+  quantity: string;
+  subtitle: string;
+  parallelTitle: string;
+  edition: string;
+  placeOfPublication: string;
+  publisher: string;
+  language: string;
+  sourceTitle: string;
+  volume: string;
+  issueNumber: string;
+  pages: string;
+  publicationYear: string;
+  notes: string;
+  price: string;
+  keywords: string;
+  classificationIndex: string;
+  knowledgeArea: BookKnowledgeArea;
+  documentType: BookKnowledgeArea;
+  mainImage: string; // Assuming this is a base64 string
+  otherImages: string[]; // Assuming these are base64 strings
+  pdf: string; // Assuming this is a base64 string
 }
 
 

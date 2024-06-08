@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import sit.tuvarna.core.models.books.Book;
 import sit.tuvarna.core.models.books.BookDetailsDTO;
 import sit.tuvarna.core.models.rental.RentRequestDTO;
 
@@ -92,6 +93,19 @@ public class BookResource {
         }
     }
 
+    @GET
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response searchBooks(@QueryParam("query") String query) {
+        try {
+            List<Book> books = bookService.searchBooks(query);
+            return Response.ok(books).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error searching for books", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error searching for books: " + e.getMessage()).build();
+        }
+    }
+
     @POST
     @Path("/rent")
     @Transactional
@@ -104,6 +118,37 @@ public class BookResource {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error renting book", e);
             return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getBookById(@PathParam("id") Long id) {
+        try {
+            Book book = bookService.getBookById(id);
+            if (book == null) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Book not found").build();
+            }
+            return Response.ok(book).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error retrieving book", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error retrieving book: " + e.getMessage()).build();
+        }
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response updateBook(@PathParam("id") Long id, MultipartFormDataInput input) {
+        try {
+            Map<String, List<InputPart>> formParts = input.getFormDataMap();
+            bookService.updateBook(id, formParts);
+            return Response.ok().build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error updating book", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error updating book: " + e.getMessage()).build();
         }
     }
 }

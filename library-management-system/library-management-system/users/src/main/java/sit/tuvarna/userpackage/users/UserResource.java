@@ -50,10 +50,10 @@ public class UserResource {
     @PermitAll
     public Response login(LoginRequest loginRequest) {
         try {
-            UserStateManagementDTO isValidUser = userService.login(loginRequest);
-            String jwt = userService.generateJwt(isValidUser);
+            UserStateManagementDTO user = userService.login(loginRequest);
+            String jwt = userService.generateJwt(user);
             Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("isValidUser", isValidUser);
+            responseBody.put("user", user);
             responseBody.put("jwt", jwt);
 
             return Response.ok()

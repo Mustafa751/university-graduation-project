@@ -48,6 +48,7 @@ const AdminPanel: React.FC = () => {
         const data = await sendRequest<AdminPanelProps[]>(
           "http://localhost:8089/api/users/summary",
           requestOptions,
+          navigate,
           logout
         );
         setUsers(data);

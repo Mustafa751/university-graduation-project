@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Tabs,
@@ -23,6 +23,7 @@ const UserInfoPage: React.FC = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [isLoadingBooks, setIsLoadingBooks] = useState<boolean>(false);
 
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchBooks = async () => {
       setIsLoadingBooks(true);
@@ -37,6 +38,7 @@ const UserInfoPage: React.FC = () => {
         const data = await sendRequest<Book[]>(
           `http://localhost:8089/api/users/${userId}/books`,
           requestOptions,
+          navigate,
           logout
         );
         setBooks(data);
