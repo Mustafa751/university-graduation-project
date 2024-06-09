@@ -13,6 +13,10 @@ import RentOut from "../rent/RentOut";
 import UserBooks from "../user/UserBooks";
 import EditBooksDisplay from "../books/EditBooksDisplay";
 import EditBook from "../books/EditBook";
+import BooksPageDisplay from "../books/BooksPage";
+import ArticlesPageDisplay from "../books/ArticlesPageDisplay";
+import PeriodicalsPageDisplay from "../books/PeriodicalsPageDisplay";
+import ReadersPageDisplay from "../books/ReadersPageDisplay";
 
 const AppRoutes = () => (
   <Routes>
@@ -42,6 +46,10 @@ const AppRoutes = () => (
     <Route path="/book/:id" element={<ProtectedRoute element={SingleBook} />} />
     <Route path="/edit-books" element={<EditBooksDisplay />} />
     <Route path="/edit-book/:id" element={<EditBook />} />
+    <Route path="/books" element={<BooksPageDisplay />} />
+    <Route path="/articles" element={<ArticlesPageDisplay />} />
+    <Route path="/periodicals" element={<PeriodicalsPageDisplay />} />
+    <Route path="/readers" element={<ReadersPageDisplay />} />
     {/* Add more routes as needed */}
   </Routes>
 );

@@ -1,16 +1,25 @@
+import React from "react";
 import {
   Flex,
   Heading,
   Button,
   IconButton,
   useColorMode,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
 } from "@chakra-ui/react";
-import { FiUser, FiSun, FiMoon } from "react-icons/fi";
+import { FiUser, FiSun, FiMoon, FiCamera } from "react-icons/fi";
 import { useAuth } from "../auth/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import QrScannerComponent from "../qrscanner/QrScannerComponent";
 
 function Navbar() {
   const { t, i18n } = useTranslation();
@@ -21,6 +30,8 @@ function Navbar() {
     (state: RootState) => state.user
   );
   console.log("Navbar state:", { isLoggedIn, userRole, userId });
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -71,13 +82,25 @@ function Navbar() {
               UsersToBeCreated
             </Button>
             {userRole?.toLowerCase() === "admin" && (
-              <Button
-                mr="2"
-                colorScheme="teal"
-                onClick={() => navigate("/admin-panel")}
-              >
-                Admin Panel
-              </Button>
+              <>
+                <Button
+                  mr="2"
+                  colorScheme="teal"
+                  onClick={() => navigate("/admin-panel")}
+                >
+                  Admin Panel
+                </Button>
+                <IconButton
+                  aria-label="Scan QR Code"
+                  icon={<FiCamera />}
+                  onClick={onOpen}
+                  colorScheme="teal"
+                  variant="ghost"
+                  fontSize="20px"
+                  mr="2"
+                  display={{ base: "block", md: "none" }} // Show only on mobile
+                />
+              </>
             )}
             <IconButton
               aria-label="Logout"
@@ -116,6 +139,16 @@ function Navbar() {
           EN
         </Button>
       </Flex>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Scan QR Code</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <QrScannerComponent onClose={onClose} />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </Flex>
   );
 }

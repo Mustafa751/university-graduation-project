@@ -195,4 +195,11 @@ public class BookService {
 
         book.persist();
     }
+
+    public List<Book> searchBooks(BookKnowledgeArea knowledgeArea, String query, int page, int limit) {
+        String searchQuery = "lower(name) like ?1 and knowledgeArea = ?2";
+        return Book.find(searchQuery, "%" + query.toLowerCase() + "%", knowledgeArea)
+                .page(page - 1, limit)
+                .list();
+    }
 }

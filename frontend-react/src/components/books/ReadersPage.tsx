@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   InputGroup,
   InputRightElement,
@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { BookData } from "../interfaces/userInterfaces";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
+import { BookKnowledgeArea } from "../interfaces/userInterfaces";
 
 function Book({ id, name, quantity, mainImage }: BookData) {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ function Book({ id, name, quantity, mainImage }: BookData) {
       borderRadius="lg"
       overflow="hidden"
       cursor="pointer"
-      onClick={() => navigate(`/edit-book/${id}`)}
+      onClick={() => navigate(`/book/${id}`)}
     >
       <Image src={`data:image/jpeg;base64,${mainImage}`} alt={name} />
       <Text mt="2" fontWeight="semibold">
@@ -41,7 +42,7 @@ function Book({ id, name, quantity, mainImage }: BookData) {
   );
 }
 
-function EditBooksDisplay() {
+function ReadersPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
@@ -61,7 +62,7 @@ function EditBooksDisplay() {
 
     try {
       const data = await sendRequest<Array<BookData>>(
-        `http://localhost:8081/api/books?page=1&limit=100`,
+        `http://localhost:8081/api/books?knowledgeArea=${BookKnowledgeArea.Reader}&page=1&limit=100`,
         requestOptions,
         navigate,
         logout
@@ -92,7 +93,7 @@ function EditBooksDisplay() {
 
       try {
         const data = await sendRequest<Array<BookData>>(
-          `http://localhost:8081/api/books/search?query=${query}`,
+          `http://localhost:8081/api/books/search?knowledgeArea=${BookKnowledgeArea.Reader}&query=${query}`,
           requestOptions,
           navigate,
           logout
@@ -163,7 +164,7 @@ function EditBooksDisplay() {
       </Flex>
       <Flex direction="column" align="center" minH="100vh" p="4" flex="1">
         <Heading as="h1" size="xl" color="teal.500" mb="4">
-          Dashboard
+          Readers
         </Heading>
         <Flex
           justify="flex-end"
@@ -204,4 +205,4 @@ function EditBooksDisplay() {
   );
 }
 
-export default EditBooksDisplay;
+export default ReadersPage;

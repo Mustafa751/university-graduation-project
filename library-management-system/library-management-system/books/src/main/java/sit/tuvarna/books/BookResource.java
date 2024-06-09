@@ -11,6 +11,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import sit.tuvarna.core.models.books.Book;
 import sit.tuvarna.core.models.books.BookDetailsDTO;
+import sit.tuvarna.core.models.enums.BookKnowledgeArea;
 import sit.tuvarna.core.models.rental.RentRequestDTO;
 
 import java.util.List;
@@ -149,6 +150,23 @@ public class BookResource {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Error updating book", e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error updating book: " + e.getMessage()).build();
+        }
+    }
+    @GET
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response searchBooks(@QueryParam("knowledgeArea") BookKnowledgeArea knowledgeArea,
+                                @QueryParam("query") String query,
+                                @QueryParam("page") @DefaultValue("1") int page,
+                                @QueryParam("limit") @DefaultValue("10") int limit) {
+        try {
+            List<Book> books = bookService.searchBooks(knowledgeArea, query, page, limit);
+            return Response.ok(books).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error searching books", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error searching books: " + e.getMessage())
+                    .build();
         }
     }
 }
