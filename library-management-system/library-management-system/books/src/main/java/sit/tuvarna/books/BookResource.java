@@ -84,6 +84,7 @@ public class BookResource {
 
     @GET
     @Path("/rent-books")
+    @RolesAllowed("*")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRentableBooks() {
         try {
@@ -156,7 +157,7 @@ public class BookResource {
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     public Response searchBooks(@QueryParam("knowledgeArea") BookKnowledgeArea knowledgeArea,
-                                @QueryParam("query") String query,
+                                @QueryParam("query")@DefaultValue("") String query,
                                 @QueryParam("page") @DefaultValue("1") int page,
                                 @QueryParam("limit") @DefaultValue("10") int limit) {
         try {

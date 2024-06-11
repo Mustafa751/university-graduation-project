@@ -62,7 +62,7 @@ function ArticlesPage() {
 
     try {
       const data = await sendRequest<Array<BookData>>(
-        `http://localhost:8081/api/books?knowledgeArea=${BookKnowledgeArea.Article}&page=1&limit=100`,
+        `http://localhost:8081/api/books/search?knowledgeArea=${BookKnowledgeArea.Article}&page=1&limit=100`,
         requestOptions,
         navigate,
         logout

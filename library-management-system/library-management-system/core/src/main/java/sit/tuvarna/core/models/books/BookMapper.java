@@ -10,7 +10,10 @@ public class BookMapper {
                 book.id,
                 book.name,
                 book.quantity,
-                book.mainImage != null ? Base64.getEncoder().encodeToString(book.mainImage) : null
+                book.mainImage != null ? Base64.getEncoder().encodeToString(book.mainImage) : null,
+                book.getPrice(),
+                book.getKnowledgeArea() != null ? book.getKnowledgeArea().toString() : null,
+                book.getLanguage()
         );
     }
 

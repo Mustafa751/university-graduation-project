@@ -36,6 +36,10 @@
             <artifactId>quarkus-hibernate-orm-panache</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-rest-client</artifactId>
+        </dependency>
+        <dependency>
             <groupId>sit.tuvarna</groupId>
             <artifactId>core</artifactId>
             <version>1.0.0-SNAPSHOT</version>
