@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
@@ -31,7 +30,7 @@ public class NotificationScheduler {
     @Inject
     Client client;
 
-    @Scheduled(every = "24h") // Every day at midnight
+    @Scheduled(every = "24h")
     @Transactional
     public void sendReminderEmails(ScheduledExecution execution) {
         LOG.info("Executing scheduled task to send reminder emails");

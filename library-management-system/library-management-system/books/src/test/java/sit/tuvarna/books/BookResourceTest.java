@@ -97,7 +97,7 @@ class BookResourceTest {
 
     @Test
     void testGetBooks1() {
-        final List<BookDTO> bookDTOS = List.of(new BookDTO(0L, "name", 0, "mainImage"));
+        final List<BookDTO> bookDTOS = List.of(new BookDTO(0L, "name", 0, "mainImage", "price", "knowledgeArea", "language"));
         when(mockBookService.getBooks(0, 0)).thenReturn(bookDTOS);
 
         final Response result = bookResourceUnderTest.getBooks(0, 0);

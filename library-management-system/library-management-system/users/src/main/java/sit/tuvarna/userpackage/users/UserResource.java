@@ -30,14 +30,12 @@ public class UserResource {
     UserService userService;
 
     @GET
-    @Authenticated
     public List<UserDTO> getUsers() {
         return userService.getUsers();
     }
 
     @GET
     @Path("/rent-users")
-    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRentUsers() {
         List<UserDTO> userDTOs = userService.getRentUsers();
@@ -58,7 +56,7 @@ public class UserResource {
 
             return Response.ok()
                     .entity(responseBody)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt)
+                    .header("X-Custom-Token", "Bearer " + jwt)
                     .type(MediaType.APPLICATION_JSON)
                     .build();
         } catch (WebApplicationException e) {
@@ -71,7 +69,6 @@ public class UserResource {
 
     @GET
     @Path("/summary")
-    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersSummary() {
         return Response.ok(userService.getUsersSummary()).build();
@@ -79,7 +76,6 @@ public class UserResource {
 
     @GET
     @Path("/{userId}/unreturned-books")
-    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUnreturnedBooks(@PathParam("userId") Long userId) {
         return Response.ok(userService.getUnreturnedBooks(userId)).build();
@@ -87,7 +83,6 @@ public class UserResource {
 
     @POST
     @Path("/{userId}/return-book/{bookId}")
-    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public Response returnBook(@PathParam("userId") Long userId, @PathParam("bookId") Long bookId) {
         userService.returnBook(userId, bookId);
@@ -96,7 +91,6 @@ public class UserResource {
 
     @GET
     @Path("/{userId}/books")
-    @Authenticated
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllBooks(@PathParam("userId") Long userId) {
         return Response.ok(userService.getAllBooks(userId)).build();

@@ -26,16 +26,14 @@ public class UserToBeCreatedResource {
         userToBeCreatedService.createUserToBeCreated(userToBeCreated);
     }
 
-    @GET
-    @Authenticated // Requires authentication to see the list
+    @GET // Requires authentication to see the list
     public List<UserToBeCreated> getUsersToBeCreated(){
         return userToBeCreatedService.getUsersToBeCreated();
     }
 
     @POST
     @Path("/{role}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Authenticated // Requires authentication to create a user with specific roles
+    @Consumes(MediaType.APPLICATION_JSON)// Requires authentication to create a user with specific roles
     public Response createUser(@PathParam("role") Roles role, UserToBeCreated userToBeCreated){
         userToBeCreatedService.createUserWithRole(userToBeCreated, role);
         return Response.ok().build();

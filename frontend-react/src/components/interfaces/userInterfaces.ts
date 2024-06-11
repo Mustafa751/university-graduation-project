@@ -63,7 +63,10 @@ export interface BookData {
   id: number;
   name: string;
   quantity: number;
-  mainImage: string; // This will now hold the Base64 string
+  mainImage: string;
+  price: string;
+  knowledgeArea: string;
+  language: string;
 }
 
 export interface BookDetails {

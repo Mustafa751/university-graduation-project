@@ -20,7 +20,15 @@ import { BookData } from "../interfaces/userInterfaces";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
 
-function Book({ id, name, quantity, mainImage }: BookData) {
+function Book({
+  id,
+  name,
+  quantity,
+  mainImage,
+  price,
+  knowledgeArea,
+  language,
+}: BookData) {
   const navigate = useNavigate();
 
   return (
@@ -36,7 +44,10 @@ function Book({ id, name, quantity, mainImage }: BookData) {
       <Text mt="2" fontWeight="semibold">
         {name}
       </Text>
-      <Text color="gray.500">{quantity} readers</Text>
+      <Text color="gray.500">{quantity} available</Text>
+      <Text color="gray.500">Price: {price}</Text>
+      <Text color="gray.500">Knowledge Area: {knowledgeArea}</Text>
+      <Text color="gray.500">Language: {language}</Text>
     </Box>
   );
 }
@@ -78,6 +89,9 @@ function BooksDisplay() {
         name: item.name,
         quantity: item.quantity,
         mainImage: item.mainImage,
+        price: item.price,
+        knowledgeArea: item.knowledgeArea,
+        language: item.language,
       }));
 
       setBooks((prevBooks) => {

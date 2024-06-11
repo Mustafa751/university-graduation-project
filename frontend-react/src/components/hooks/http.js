@@ -1,12 +1,13 @@
 export const sendRequest = async (url, options = {}, navigate, logout) => {
   try {
+    let response
     // Add Authorization header if JWT token is present and URL is not excluded
     if (!url.includes('http://localhost:8083/jwt')) {
-      const jwtToken = localStorage.getItem('jwtToken');
+      const jwtToken = localStorage.getItem('X-Custom-Token');
       if (jwtToken) {
         options.headers = {
           ...options.headers,
-          Authorization: `Bearer ${jwtToken}`,
+          'X-Custom-Token': `Bearer ${jwtToken}`,
         };
       }
     }
@@ -17,18 +18,21 @@ export const sendRequest = async (url, options = {}, navigate, logout) => {
     // Log the request for debugging
     console.log("Request URL:", url);
     console.log("Request options:", options);
-
-    const response = await fetch(url, options);
-
+try{
+     response = await fetch(url, options);
+}
+catch(error){
+  console.log("error",error);
+}
     // Log the response status and headers for debugging
     console.log("Response status:", response.status);
     console.log("Response headers:", [...response.headers]);
 
     // Check if a new token is provided
-    const newToken = response.headers.get("Authorization");
+    const newToken = response.headers.get("X-Custom-Token");
     if (newToken && newToken.startsWith("Bearer ")) {
       const tokenValue = newToken.substring("Bearer ".length);
-      localStorage.setItem('jwtToken', tokenValue);
+      localStorage.setItem('X-Custom-Token', tokenValue);
     } else if (response.status === 401) {
       // If no new token and unauthorized, handle as unauthorized
       console.error("Session expired. Logging out.");
@@ -40,9 +44,7 @@ export const sendRequest = async (url, options = {}, navigate, logout) => {
     }
 
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Request failed:", errorData);
-      return Promise.reject(new Error(errorData.message || 'Request failed'));
+      return Promise.reject(new Error('Request failed'));
     }
 
     // Return the JSON response
