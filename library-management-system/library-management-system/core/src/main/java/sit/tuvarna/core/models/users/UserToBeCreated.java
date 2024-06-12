@@ -8,8 +8,6 @@ import jakarta.persistence.*;
 public class UserToBeCreated extends PanacheEntity {
     @Column(unique = true)
     private String fakNumber;
-
-    private String egn;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -31,14 +29,6 @@ public class UserToBeCreated extends PanacheEntity {
 
     public void setFakNumber(String fakNumber) {
         this.fakNumber = fakNumber;
-    }
-
-    public String getEgn() {
-        return egn;
-    }
-
-    public void setEgn(String egn) {
-        this.egn = egn;
     }
 
     public String getFirstName() {

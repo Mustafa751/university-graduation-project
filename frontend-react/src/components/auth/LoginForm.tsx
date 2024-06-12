@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const toast = useToast();
-  const [formData, setFormData] = useState({ fakNumber: "", egn: "" });
+  const [formData, setFormData] = useState({ email: "", fakNumber: "" });
   const { login, logout } = useAuth();
   const navigate = useNavigate();
   const [logoutCalled, setLogoutCalled] = useState(false);
@@ -32,7 +32,7 @@ function LoginForm() {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(formData.fakNumber, formData.egn)
+    login(formData.email, formData.fakNumber)
       .then(() => {
         navigate("/dashboard");
       })
@@ -73,14 +73,14 @@ function LoginForm() {
           Вход
         </Heading>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
-          <FormControl id="fakNumber" isRequired mt="4">
-            <FormLabel>Фак Номер</FormLabel>
+          <FormControl id="email" isRequired mt="4">
+            <FormLabel>Email</FormLabel>
             <Input
               type="text"
-              name="fakNumber"
-              value={formData.fakNumber}
+              name="email"
+              value={formData.email}
               onChange={handleInputChange}
-              placeholder="Фак Номер"
+              placeholder="Email"
               variant="filled"
               bg="white"
               color="teal.800"
@@ -88,14 +88,14 @@ function LoginForm() {
               mb="4"
             />
           </FormControl>
-          <FormControl id="egn" isRequired>
-            <FormLabel>ЕГН</FormLabel>
+          <FormControl id="fakNumber" isRequired>
+            <FormLabel>Факултетен номер</FormLabel>
             <Input
               type="text"
-              name="egn"
-              value={formData.egn}
+              name="fakNumber"
+              value={formData.fakNumber}
               onChange={handleInputChange}
-              placeholder="ЕГН"
+              placeholder="Факултетен номер"
               variant="filled"
               bg="white"
               color="teal.800"

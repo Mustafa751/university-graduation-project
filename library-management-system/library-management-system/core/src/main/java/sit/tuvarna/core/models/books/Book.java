@@ -3,6 +3,7 @@ package sit.tuvarna.core.models.books;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import sit.tuvarna.core.models.enums.BookKnowledgeArea;
+import sit.tuvarna.core.models.enums.BookTopic;
 import sit.tuvarna.core.models.images.Image;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class Book extends PanacheEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     public List<Image> images;
 
+    public String inventoryNumber; // New field
+    public String signature; // New field
     // New fields
     public String subtitle;
     public String parallelTitle;
@@ -48,6 +51,9 @@ public class Book extends PanacheEntity {
 
     @Enumerated(EnumType.STRING)
     private BookKnowledgeArea documentType;
+
+    @Enumerated(EnumType.STRING)
+    private BookTopic topic; // New field
 
     // Constructors
     public Book() {
@@ -94,6 +100,22 @@ public class Book extends PanacheEntity {
     // New setters
     public void setSubtitle(String subtitle) {
         this.subtitle = subtitle;
+    }
+
+    public void setInventoryNumber(String inventoryNumber) {
+        this.inventoryNumber = inventoryNumber;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    public String getInventoryNumber() {
+        return inventoryNumber;
+    }
+
+    public String getSignature() {
+        return signature;
     }
 
     public void setParallelTitle(String parallelTitle) {
@@ -259,5 +281,13 @@ public class Book extends PanacheEntity {
 
     public BookKnowledgeArea getDocumentType() {
         return documentType;
+    }
+
+    public void setTopic(BookTopic topic) {
+        this.topic = topic;
+    }
+
+    public BookTopic getTopic() {
+        return topic;
     }
 }

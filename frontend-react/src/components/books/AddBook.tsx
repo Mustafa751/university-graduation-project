@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { sendRequest } from "../hooks/http";
 import { BookKnowledgeArea } from "../interfaces/userInterfaces"; // Adjust the import path
+import { topics } from "../topics"; // Import topics from the new file
 
 const AddBook = () => {
   const toast = useToast();
@@ -35,6 +36,8 @@ const AddBook = () => {
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [otherImages, setOtherImages] = useState<FileList | null>(null);
   const [pdf, setPdf] = useState<File | null>(null);
+  const [inventoryNumber, setInventoryNumber] = useState("");
+  const [signature, setSignature] = useState("");
 
   const [subtitle, setSubtitle] = useState("");
   const [parallelTitle, setParallelTitle] = useState("");
@@ -57,6 +60,7 @@ const AddBook = () => {
   const [documentType, setDocumentType] = useState<BookKnowledgeArea>(
     BookKnowledgeArea.Book
   );
+  const [topic, setTopic] = useState(""); // New state for topic
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,6 +88,9 @@ const AddBook = () => {
     formData.append("classificationIndex", classificationIndex);
     formData.append("knowledgeArea", knowledgeArea);
     formData.append("documentType", documentType);
+    formData.append("inventoryNumber", inventoryNumber);
+    formData.append("signature", signature);
+    formData.append("topic", topic); // Append the topic
 
     if (mainImage) {
       formData.append("mainImage", mainImage);
@@ -180,6 +187,24 @@ const AddBook = () => {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="inventoryNumber">Инвентарен номер</FormLabel>
+              <Input
+                id="inventoryNumber"
+                value={inventoryNumber}
+                onChange={(e) => setInventoryNumber(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="signature">Сигнатура</FormLabel>
+              <Input
+                id="signature"
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
                 bg={inputBgColor}
               />
             </FormControl>
@@ -371,6 +396,21 @@ const AddBook = () => {
                 {Object.values(BookKnowledgeArea).map((type) => (
                   <option key={type} value={type}>
                     {type}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="topic">Теми</FormLabel>
+              <Select
+                id="topic"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                bg={inputBgColor}
+              >
+                {topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
                   </option>
                 ))}
               </Select>

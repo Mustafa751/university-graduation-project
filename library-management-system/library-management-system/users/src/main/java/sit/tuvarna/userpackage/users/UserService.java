@@ -63,7 +63,7 @@ public class UserService {
 
     private UserStateManagementDTO findUserByCredentials(LoginRequest loginRequest) {
         try {
-            return userRepository.find("facultyNumber = ?1 and egn = ?2", loginRequest.getFakNumber(), loginRequest.getEgn())
+            return userRepository.find("email = ?1 and facultyNumber = ?2", loginRequest.getEmail(), loginRequest.getFakNumber())
                     .project(UserStateManagementDTO.class)
                     .firstResult();
         } catch (Exception e) {
@@ -118,7 +118,15 @@ public class UserService {
         User user = userRepository.findById(userId);
         return user.getRentals().stream()
                 .filter(rental -> rental.getRentalEndDate().isAfter(LocalDateTime.now()))
-                .map(rental -> new UnreturnedBookDTO(rental.getBook().id, rental.getBook().name, rental.getRentalEndDate()))
+                .map(rental -> new UnreturnedBookDTO(
+                        rental.getBook().id,
+                        rental.getBook().name,
+                        rental.getBook().author,
+                        rental.getBook().inventoryNumber,
+                        rental.getBook().signature,
+                        rental.getRentalStartDate(),
+                        rental.getRentalEndDate()
+                ))
                 .collect(Collectors.toList());
     }
 

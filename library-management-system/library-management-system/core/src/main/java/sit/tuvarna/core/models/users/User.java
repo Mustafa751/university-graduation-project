@@ -13,8 +13,6 @@ import java.util.List;
 public class User extends PanacheEntity {
     @Column(unique = true)
     private String facultyNumber;
-
-    private String egn;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -42,14 +40,6 @@ public class User extends PanacheEntity {
 
     public void setFacultyNumber(String facultyNumber) {
         this.facultyNumber = facultyNumber;
-    }
-
-    public String getEgn() {
-        return egn;
-    }
-
-    public void setEgn(String egn) {
-        this.egn = egn;
     }
 
     public String getFirstName() {

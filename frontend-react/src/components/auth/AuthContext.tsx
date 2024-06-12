@@ -35,7 +35,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fakNumber: username, egn: password }),
+        body: JSON.stringify({ email: username, fakNumber: password }),
       };
 
       sendRequest<UserResponse>(

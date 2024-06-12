@@ -56,4 +56,6 @@ public class NotificationScheduler {
             throw new RuntimeException("Failed to fetch users with books due soon");
         }
     }
+
+
 }

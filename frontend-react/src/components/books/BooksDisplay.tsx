@@ -12,6 +12,7 @@ import {
   Image,
   VStack,
   Button,
+  Select,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
 import { debounce, throttle } from "lodash";
@@ -23,6 +24,7 @@ import { useAuth } from "../auth/AuthContext";
 function Book({
   id,
   name,
+  author,
   quantity,
   mainImage,
   price,
@@ -42,7 +44,7 @@ function Book({
     >
       <Image src={`data:image/jpeg;base64,${mainImage}`} alt={name} />
       <Text mt="2" fontWeight="semibold">
-        {name}
+        {name} by {author}
       </Text>
       <Text color="gray.500">{quantity} available</Text>
       <Text color="gray.500">Price: {price}</Text>
@@ -59,6 +61,7 @@ function BooksDisplay() {
   const [books, setBooks] = useState<BookData[]>([]);
   const [page, setPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchBy, setSearchBy] = useState<string>("title"); // New state for search criteria
   const [searchResults, setSearchResults] = useState<BookData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const observer = useRef<IntersectionObserver | null>(null);
@@ -87,6 +90,7 @@ function BooksDisplay() {
       const newBooks = data.map((item: BookData) => ({
         id: item.id,
         name: item.name,
+        author: item.author, // Ensure this field is populated
         quantity: item.quantity,
         mainImage: item.mainImage,
         price: item.price,
@@ -114,14 +118,31 @@ function BooksDisplay() {
   }, [fetchBooks, page]);
 
   const debouncedSearch = useCallback(
-    debounce((query) => {
-      const filtered = books.filter((book) =>
-        book.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(filtered);
-      setIsSearching(true);
-    }, 300),
-    [books]
+    debounce(async (query) => {
+      if (query.length < 3) return;
+
+      const requestOptions: SendRequestOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      try {
+        const data = await sendRequest<Array<BookData>>(
+          `http://localhost:8081/api/books/search?query=${query}&searchBy=${searchBy}`,
+          requestOptions,
+          navigate,
+          logout
+        );
+
+        setSearchResults(data);
+        setIsSearching(true);
+      } catch (error) {
+        console.error("Error searching books:", error);
+      }
+    }, 500),
+    [navigate, logout, searchBy]
   );
 
   useEffect(() => {
@@ -209,9 +230,20 @@ function BooksDisplay() {
           paddingRight="4"
           paddingBottom="4"
         >
+          <InputGroup width="300px" mr="4">
+            <Select
+              value={searchBy}
+              onChange={(e) => setSearchBy(e.target.value)}
+              bg="white"
+            >
+              <option value="title">Book Title</option>
+              <option value="author">Author Name</option>
+              <option value="topic">Тема</option>
+            </Select>
+          </InputGroup>
           <InputGroup width="300px">
             <Input
-              placeholder="Search by title..."
+              placeholder={`Search by ${searchBy}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

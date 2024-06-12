@@ -1,13 +1,13 @@
 package sit.tuvarna.core.models.users;
 
 public class LoginRequest {
+    public String email;
     public String fakNumber;
-    public String egn;
 
         // Constructors, getters, setters
-    public LoginRequest(String fakNumber, String egn) {
+    public LoginRequest(String email,String fakNumber) {
+        this.email = email;
         this.fakNumber = fakNumber;
-        this.egn = egn;
     }
 
     public String getFakNumber() {
@@ -18,12 +18,12 @@ public class LoginRequest {
         this.fakNumber = fakNumber;
     }
 
-    public String getEgn() {
-        return egn;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEgn(String egn) {
-        this.egn = egn;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     // Getters and setters if needed, or keep it simple for Jakarta to use direct field access

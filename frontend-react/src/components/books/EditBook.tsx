@@ -36,6 +36,8 @@ const EditBook = () => {
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [otherImages, setOtherImages] = useState<FileList | null>(null);
   const [pdf, setPdf] = useState<File | null>(null);
+  const [inventoryNumber, setInventoryNumber] = useState("");
+  const [signature, setSignature] = useState("");
 
   const [subtitle, setSubtitle] = useState("");
   const [parallelTitle, setParallelTitle] = useState("");
@@ -98,6 +100,8 @@ const EditBook = () => {
         setClassificationIndex(data.classificationIndex);
         setKnowledgeArea(data.knowledgeArea);
         setDocumentType(data.documentType);
+        setInventoryNumber(data.inventoryNumber); // New field
+        setSignature(data.signature); // New field
       } catch (error) {
         console.error("Error fetching book:", error);
       }
@@ -131,6 +135,8 @@ const EditBook = () => {
     formData.append("classificationIndex", classificationIndex);
     formData.append("knowledgeArea", knowledgeArea);
     formData.append("documentType", documentType);
+    formData.append("inventoryNumber", inventoryNumber); // New field
+    formData.append("signature", signature); // New field
 
     if (mainImage) {
       formData.append("mainImage", mainImage);
@@ -226,6 +232,25 @@ const EditBook = () => {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+
+            <FormControl>
+              <FormLabel htmlFor="inventoryNumber">Инвентарен номер</FormLabel>
+              <Input
+                id="inventoryNumber"
+                value={inventoryNumber}
+                onChange={(e) => setInventoryNumber(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="signature">Сигнатура</FormLabel>
+              <Input
+                id="signature"
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
                 bg={inputBgColor}
               />
             </FormControl>

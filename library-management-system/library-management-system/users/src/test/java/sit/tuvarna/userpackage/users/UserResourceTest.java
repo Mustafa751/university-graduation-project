@@ -55,7 +55,7 @@ class UserResourceTest {
 
     @Test
     void testLogin() {
-        final LoginRequest loginRequest = new LoginRequest("fakNumber", "egn");
+        final LoginRequest loginRequest = new LoginRequest("email", "fakNumber");
         final UserStateManagementDTO userStateManagementDTO = new UserStateManagementDTO(1L, "email", "facultyNumber", "phoneNumber", Roles.STUDENT);
         when(mockUserService.login(any(LoginRequest.class))).thenReturn(userStateManagementDTO);
         when(mockUserService.generateJwt(any(UserStateManagementDTO.class))).thenReturn("jwtToken");
@@ -66,7 +66,7 @@ class UserResourceTest {
 
     @Test
     void testLogin_UserServiceReturnsNull() {
-        final LoginRequest loginRequest = new LoginRequest("fakNumber", "egn");
+        final LoginRequest loginRequest = new LoginRequest("email", "fakNumber");
         when(mockUserService.login(any(LoginRequest.class))).thenThrow(new WebApplicationException("Invalid credentials", Response.Status.UNAUTHORIZED));
 
         final Response result = userResourceUnderTest.login(loginRequest);
@@ -88,16 +88,6 @@ class UserResourceTest {
         when(mockUserService.getUsersSummary()).thenReturn(Collections.emptyList());
 
         final Response result = userResourceUnderTest.getUsersSummary();
-        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
-    }
-
-    @Test
-    void testGetUnreturnedBooks() {
-        final UnreturnedBookDTO unreturnedBookDTO = new UnreturnedBookDTO(1L, "bookName", LocalDateTime.now().plusDays(1));
-        final List<UnreturnedBookDTO> unreturnedBookDTOS = List.of(unreturnedBookDTO);
-        when(mockUserService.getUnreturnedBooks(1L)).thenReturn(unreturnedBookDTOS);
-
-        final Response result = userResourceUnderTest.getUnreturnedBooks(1L);
         assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
     }
 

@@ -34,10 +34,6 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
         accessor: "fakNumber",
       },
       {
-        Header: "EGN",
-        accessor: "egn",
-      },
-      {
         Header: "Email",
         accessor: "email",
       },

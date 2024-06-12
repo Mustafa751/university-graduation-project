@@ -16,13 +16,10 @@ interface FormData {
   firstName: string;
   middleName: string;
   lastName: string;
-  egn: string;
   gender: string;
-  address: string;
   email: string;
   phoneNumber: string;
   category: string;
-  education: string;
   faculty: string;
   specialty: string;
   course: string;
@@ -35,13 +32,10 @@ const RegisterForm: React.FC = () => {
     firstName: "",
     middleName: "",
     lastName: "",
-    egn: "",
     gender: "",
-    address: "",
     email: "",
     phoneNumber: "",
     category: "",
-    education: "",
     faculty: "",
     specialty: "",
     course: "",
@@ -52,13 +46,10 @@ const RegisterForm: React.FC = () => {
     firstName: true,
     middleName: true,
     lastName: true,
-    egn: true,
     gender: true,
-    address: true,
     email: true,
     phoneNumber: true,
     category: true,
-    education: true,
     faculty: true,
     specialty: true,
     course: true,
@@ -77,8 +68,6 @@ const RegisterForm: React.FC = () => {
     let isValid = true;
     if (name === "fakNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
-    } else if (name === "egn") {
-      isValid = /^\d{10}$/.test(value); // EGN should be 10 digits
     } else if (name === "email") {
       isValid = /\S+@\S+\.\S+/.test(value); // Simple email format check
     } else if (name === "phoneNumber") {
@@ -174,19 +163,6 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="egn" isRequired>
-              <FormLabel>{t("form.egn")}</FormLabel>
-              <Input
-                type="text"
-                name="egn"
-                value={formData.egn}
-                onChange={handleInputChange}
-                placeholder={t("form.enterEgn")}
-                variant="filled"
-                bg="white"
-                color="teal.800"
-              />
-            </FormControl>
             <FormControl id="gender" isRequired>
               <FormLabel>{t("form.gender")}</FormLabel>
               <Select
@@ -202,19 +178,7 @@ const RegisterForm: React.FC = () => {
                 <option value="female">{t("form.female")}</option>
               </Select>
             </FormControl>
-            <FormControl id="address" isRequired>
-              <FormLabel>{t("form.address")}</FormLabel>
-              <Input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder={t("form.enterAddress")}
-                variant="filled"
-                bg="white"
-                color="teal.800"
-              />
-            </FormControl>
+
             <FormControl id="email" isRequired>
               <FormLabel>{t("form.email")}</FormLabel>
               <Input
@@ -259,19 +223,6 @@ const RegisterForm: React.FC = () => {
                 <option value="employee">{t("form.employee")}</option>
                 <option value="other">{t("form.other")}</option>
               </Select>
-            </FormControl>
-            <FormControl id="education" isRequired>
-              <FormLabel>{t("form.education")}</FormLabel>
-              <Input
-                type="text"
-                name="education"
-                value={formData.education}
-                onChange={handleInputChange}
-                placeholder={t("form.enterEducation")}
-                variant="filled"
-                bg="white"
-                color="teal.800"
-              />
             </FormControl>
             <FormControl id="faculty" isRequired>
               <FormLabel>{t("form.faculty")}</FormLabel>

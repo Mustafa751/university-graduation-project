@@ -49,7 +49,6 @@ export interface PersonalInfoProps {
   export interface UserToBeCreated {
     id: string;
     fakNumber: string;
-    egn: string;
     email: string;
     phoneNumber: string;
   }
@@ -62,6 +61,7 @@ export interface PersonalInfoProps {
 export interface BookData {
   id: number;
   name: string;
+  author: string;
   quantity: number;
   mainImage: string;
   price: string;
@@ -87,6 +87,8 @@ export interface BookDetails {
   language: string;
   sourceTitle: string;
   volume: string;
+  inventoryNumber: string;
+  signature: string; // New field
   issueNumber: string;
   pages: string;
   publicationYear: string;

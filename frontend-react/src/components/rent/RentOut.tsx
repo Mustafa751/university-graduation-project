@@ -29,6 +29,9 @@ const RentOut: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Option | null>(null);
   const [selectedUser, setSelectedUser] = useState<Option | null>(null);
   const [returnDate, setReturnDate] = useState<string>("");
+  const [, setRentalStartDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
 
   const inputBgColor = useColorModeValue("white", "gray.700");
 
@@ -103,6 +106,7 @@ const RentOut: React.FC = () => {
       body: JSON.stringify({
         bookId: selectedBook.value,
         userId: selectedUser.value,
+        rentalStartDate: new Date().toISOString(), // Include the current date and time
         returnDate,
       }),
     };
@@ -119,6 +123,7 @@ const RentOut: React.FC = () => {
       setSelectedBook(null);
       setSelectedUser(null);
       setReturnDate("");
+      setRentalStartDate(new Date().toISOString().split("T")[0]); // Reset the date to now
     } catch (error) {
       console.error("Error renting book:", error);
     }

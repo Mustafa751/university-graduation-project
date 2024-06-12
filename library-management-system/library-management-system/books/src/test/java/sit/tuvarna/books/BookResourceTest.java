@@ -141,7 +141,7 @@ class BookResourceTest {
 
     @Test
     void testRentBook() throws Exception {
-        final RentRequestDTO rentRequest = new RentRequestDTO(0L, 0L, "returnDate");
+        final RentRequestDTO rentRequest = new RentRequestDTO(0L, 0L, "startDate","returnDate");
 
         final Response result = bookResourceUnderTest.rentBook(rentRequest);
 

@@ -22,6 +22,10 @@ import { useAuth } from "../auth/AuthContext";
 interface UnreturnedBook {
   bookId: number;
   bookName: string;
+  author: string;
+  inventoryNumber: string;
+  signature: string;
+  rentalStartDate: string;
   rentalEndDate: string;
 }
 
@@ -93,6 +97,10 @@ const UserBooks: React.FC = () => {
               <Thead>
                 <Tr>
                   <Th>Book Name</Th>
+                  <Th>Author</Th>
+                  <Th>Inventory Number</Th>
+                  <Th>Signature</Th>
+                  <Th>Rental Start Date</Th>
                   <Th>Rental End Date</Th>
                   <Th>Actions</Th>
                 </Tr>
@@ -101,6 +109,12 @@ const UserBooks: React.FC = () => {
                 {books.map((book) => (
                   <Tr key={book.bookId}>
                     <Td>{book.bookName}</Td>
+                    <Td>{book.author}</Td>
+                    <Td>{book.inventoryNumber}</Td>
+                    <Td>{book.signature}</Td>
+                    <Td>
+                      {new Date(book.rentalStartDate).toLocaleDateString()}
+                    </Td>
                     <Td>{new Date(book.rentalEndDate).toLocaleDateString()}</Td>
                     <Td>
                       <Tooltip label="Return Book" aria-label="Return Book">

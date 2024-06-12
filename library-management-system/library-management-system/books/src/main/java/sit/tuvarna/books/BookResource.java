@@ -170,4 +170,27 @@ public class BookResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/search")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response searchBooks(@QueryParam("query") String query, @QueryParam("searchBy") String searchBy) {
+        try {
+            List<Book> books;
+            if ("title".equalsIgnoreCase(searchBy)) {
+                books = bookService.searchBooks(query);
+            } else if ("author".equalsIgnoreCase(searchBy)) {
+                books = bookService.searchBooksByAuthor(query);
+            } else if ("topic".equalsIgnoreCase(searchBy)) {
+                books = bookService.searchBooksByTopic(query);
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid search criteria").build();
+            }
+            return Response.ok(books).build();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error searching for books", e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error searching for books: " + e.getMessage()).build();
+        }
+    }
+
 }

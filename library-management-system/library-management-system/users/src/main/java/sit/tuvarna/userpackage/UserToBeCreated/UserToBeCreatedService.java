@@ -14,7 +14,6 @@ public class UserToBeCreatedService {
     public void createUserWithRole(UserToBeCreated userToBeCreated, Roles role) {
         User newUser = new User();
         newUser.setFacultyNumber(userToBeCreated.getFakNumber());
-        newUser.setEgn(userToBeCreated.getEgn());
         newUser.setFirstName(userToBeCreated.getFirstName());
         newUser.setMiddleName(userToBeCreated.getMiddleName());
         newUser.setLastName(userToBeCreated.getLastName());

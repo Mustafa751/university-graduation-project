@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import sit.tuvarna.core.models.books.*;
 import sit.tuvarna.core.models.enums.BookKnowledgeArea;
+import sit.tuvarna.core.models.enums.BookTopic;
 import sit.tuvarna.core.models.images.Image;
 import sit.tuvarna.core.models.rental.RentRequestDTO;
 import sit.tuvarna.core.models.rental.Rental;
@@ -15,7 +16,8 @@ import sit.tuvarna.core.models.users.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -55,8 +57,11 @@ public class BookService {
         book.setClassificationIndex(getFormData(formParts, "classificationIndex"));
         book.setKnowledgeArea(BookKnowledgeArea.valueOf(getFormData(formParts, "knowledgeArea")));
         book.setDocumentType(BookKnowledgeArea.valueOf(getFormData(formParts, "documentType")));
-        book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
+        book.setInventoryNumber(getFormData(formParts, "inventoryNumber"));
+        book.setSignature(getFormData(formParts, "signature"));
+        book.setTopic(BookTopic.valueOf(getFormData(formParts, "topic"))); // New field
 
+        book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
         processImages(formParts, book);
         bookRepository.persist(book);
     }
@@ -141,8 +146,8 @@ public class BookService {
         Rental rental = new Rental();
         rental.setBook(book);
         rental.setUser(user);
-        rental.setRentalStartDate(LocalDate.now().atStartOfDay());
-        rental.setRentalEndDate(LocalDate.parse(rentRequest.returnDate).atStartOfDay());
+        rental.setRentalStartDate(LocalDateTime.parse(rentRequest.getRentalStartDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        rental.setRentalEndDate(LocalDateTime.parse(rentRequest.getReturnDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         rental.persist();
     }
 
@@ -184,6 +189,9 @@ public class BookService {
         book.setClassificationIndex(getFormData(formParts, "classificationIndex"));
         book.setKnowledgeArea(BookKnowledgeArea.valueOf(getFormData(formParts, "knowledgeArea")));
         book.setDocumentType(BookKnowledgeArea.valueOf(getFormData(formParts, "documentType")));
+        book.setInventoryNumber(getFormData(formParts, "inventoryNumber"));
+        book.setSignature(getFormData(formParts, "signature"));
+        book.setTopic(BookTopic.valueOf(getFormData(formParts, "topic"))); // New field
 
         if (formParts.containsKey("mainImage")) {
             book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
@@ -195,11 +203,27 @@ public class BookService {
 
         book.persist();
     }
+    public List<Book> searchBooksByTopic(String topic) {
+        BookTopic bookTopic = getBookTopicFromDisplayName(topic);
+        return Book.find("topic", bookTopic).list();
+    }
 
+    private BookTopic getBookTopicFromDisplayName(String displayName) {
+        for (BookTopic topic : BookTopic.values()) {
+            if (topic.getDisplayName().equals(displayName)) {
+                return topic;
+            }
+        }
+        throw new IllegalArgumentException("Invalid topic: " + displayName);
+    }
     public List<Book> searchBooks(BookKnowledgeArea knowledgeArea, String query, int page, int limit) {
         String searchQuery = "lower(name) like ?1 and knowledgeArea = ?2";
         return Book.find(searchQuery, "%" + query.toLowerCase() + "%", knowledgeArea)
                 .page(page - 1, limit)
                 .list();
+    }
+
+    public List<Book> searchBooksByAuthor(String query) {
+        return Book.find("lower(author) like ?1", "%" + query.toLowerCase() + "%").list();
     }
 }
