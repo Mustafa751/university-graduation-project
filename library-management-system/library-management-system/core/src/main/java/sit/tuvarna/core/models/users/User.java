@@ -17,7 +17,6 @@ public class User extends PanacheEntity {
     private String middleName;
     private String lastName;
     private String gender;
-    private String address;
     private String email;
     private String phoneNumber;
     private String category;
@@ -25,6 +24,11 @@ public class User extends PanacheEntity {
     private String faculty;
     private String specialty;
     private String course;
+
+    @ElementCollection
+    @CollectionTable(name = "user_addresses", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "address")
+    private List<String> addresses;
 
     @Enumerated(EnumType.STRING)
     private Roles role;
@@ -74,12 +78,12 @@ public class User extends PanacheEntity {
         this.gender = gender;
     }
 
-    public String getAddress() {
-        return address;
+    public List<String> getAddresses() {
+        return addresses;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddresses(List<String> addresses) {
+        this.addresses = addresses;
     }
 
     public String getEmail() {

@@ -110,5 +110,3 @@ export interface AdminPanelProps {
   facultyNumber: string;
   phoneNumber: string;
 }
-
-  

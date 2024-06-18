@@ -18,7 +18,7 @@ public class UserToBeCreatedService {
         newUser.setMiddleName(userToBeCreated.getMiddleName());
         newUser.setLastName(userToBeCreated.getLastName());
         newUser.setGender(userToBeCreated.getGender());
-        newUser.setAddress(userToBeCreated.getAddress());
+        newUser.setAddresses(userToBeCreated.getAddresses()); // Multiple addresses
         newUser.setEmail(userToBeCreated.getEmail());
         newUser.setPhoneNumber(userToBeCreated.getPhoneNumber());
         newUser.setCategory(userToBeCreated.getCategory());
@@ -31,6 +31,8 @@ public class UserToBeCreatedService {
         newUser.persist();  // Persist the new User
         userToBeCreated.delete();  // Delete the UserToBeCreated record
     }
+
+
 
     public List<UserToBeCreated> getUsersToBeCreated() {
         return UserToBeCreated.listAll();

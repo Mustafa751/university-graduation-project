@@ -9,7 +9,9 @@ import {
   VStack,
   Box,
   Select,
+  IconButton,
 } from "@chakra-ui/react";
+import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
 
 interface FormData {
@@ -24,6 +26,7 @@ interface FormData {
   specialty: string;
   course: string;
   fakNumber: string;
+  addresses: string[];
 }
 
 const RegisterForm: React.FC = () => {
@@ -40,6 +43,7 @@ const RegisterForm: React.FC = () => {
     specialty: "",
     course: "",
     fakNumber: "",
+    addresses: [""],
   });
 
   const [validity, setValidity] = useState({
@@ -54,17 +58,26 @@ const RegisterForm: React.FC = () => {
     specialty: true,
     course: true,
     fakNumber: true,
+    addresses: [true],
   });
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    validateInput(name, value);
+    if (name.startsWith("address")) {
+      const index = parseInt(name.split("-")[1], 10);
+      const updatedAddresses = [...formData.addresses];
+      updatedAddresses[index] = value;
+      setFormData({ ...formData, addresses: updatedAddresses });
+      validateInput(name, value, index);
+    } else {
+      setFormData({ ...formData, [name]: value });
+      validateInput(name, value);
+    }
   };
 
-  const validateInput = (name: string, value: string) => {
+  const validateInput = (name: string, value: string, index?: number) => {
     let isValid = true;
     if (name === "fakNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
@@ -72,12 +85,21 @@ const RegisterForm: React.FC = () => {
       isValid = /\S+@\S+\.\S+/.test(value); // Simple email format check
     } else if (name === "phoneNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
+    } else if (name.startsWith("address") && index !== undefined) {
+      isValid = value.trim() !== ""; // Ensure address is not empty
+      const updatedValidity = [...validity.addresses];
+      updatedValidity[index] = isValid;
+      setValidity({ ...validity, addresses: updatedValidity });
+      return;
     }
     setValidity({ ...validity, [name]: isValid });
   };
 
   const isFormValid = () => {
-    return Object.values(validity).every((value) => value);
+    return (
+      Object.values(validity).every((value) => value === true) &&
+      validity.addresses.every((value) => value === true)
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -111,6 +133,18 @@ const RegisterForm: React.FC = () => {
         alert("An unexpected error occurred");
       }
     }
+  };
+
+  const handleAddAddress = () => {
+    setFormData({ ...formData, addresses: [...formData.addresses, ""] });
+    setValidity({ ...validity, addresses: [...validity.addresses, true] });
+  };
+
+  const handleRemoveAddress = (index: number) => {
+    const updatedAddresses = formData.addresses.filter((_, i) => i !== index);
+    const updatedValidity = validity.addresses.filter((_, i) => i !== index);
+    setFormData({ ...formData, addresses: updatedAddresses });
+    setValidity({ ...validity, addresses: updatedValidity });
   };
 
   return (
@@ -178,7 +212,40 @@ const RegisterForm: React.FC = () => {
                 <option value="female">{t("form.female")}</option>
               </Select>
             </FormControl>
-
+            {formData.addresses.map((address, index) => (
+              <FormControl id={`address-${index}`} isRequired key={index}>
+                <FormLabel>
+                  {t("form.address")} {index + 1}
+                </FormLabel>
+                <Input
+                  type="text"
+                  name={`address-${index}`}
+                  value={address}
+                  onChange={handleInputChange}
+                  placeholder={t("form.enterAddress")}
+                  variant="filled"
+                  bg="white"
+                  color="teal.800"
+                />
+                {index > 0 && (
+                  <IconButton
+                    aria-label="Remove address"
+                    icon={<CloseIcon />}
+                    size="sm"
+                    mt="2"
+                    onClick={() => handleRemoveAddress(index)}
+                  />
+                )}
+              </FormControl>
+            ))}
+            <Button
+              onClick={handleAddAddress}
+              leftIcon={<AddIcon />}
+              colorScheme="teal"
+              mt="2"
+            >
+              {t("form.addAddress")}
+            </Button>
             <FormControl id="email" isRequired>
               <FormLabel>{t("form.email")}</FormLabel>
               <Input

@@ -18,16 +18,21 @@
     "@reduxjs/toolkit": "^2.2.5",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.0",
+    "crypto-js": "^4.2.0",
     "framer-motion": "^11.2.10",
+    "html5-qrcode": "^2.3.8",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-redux": "^9.1.2",
+    "react-responsive": "^10.0.0",
     "react-router-dom": "^6.22.3",
     "react-select": "^5.8.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "redux-persist-transform-encrypt": "^5.1.1"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@types/react-table": "^7.7.20",

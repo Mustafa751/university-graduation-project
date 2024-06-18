@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useState, useEffect } from "react";
 import {
   Text,
   FormControl,
@@ -22,6 +22,8 @@ import { useAuth } from "../auth/AuthContext";
 import { sendRequest } from "../hooks/http";
 import { BookKnowledgeArea } from "../interfaces/userInterfaces"; // Adjust the import path
 import { topics } from "../topics"; // Import topics from the new file
+import { Html5QrcodeScanner } from "html5-qrcode";
+import { useMediaQuery } from "react-responsive";
 
 const AddBook = () => {
   const toast = useToast();
@@ -38,7 +40,6 @@ const AddBook = () => {
   const [pdf, setPdf] = useState<File | null>(null);
   const [inventoryNumber, setInventoryNumber] = useState("");
   const [signature, setSignature] = useState("");
-
   const [subtitle, setSubtitle] = useState("");
   const [parallelTitle, setParallelTitle] = useState("");
   const [edition, setEdition] = useState("");
@@ -61,7 +62,9 @@ const AddBook = () => {
     BookKnowledgeArea.Book
   );
   const [topic, setTopic] = useState(""); // New state for topic
-
+  const [barcode, setBarcode] = useState(""); // New state for barcode
+  const [isScanning, setIsScanning] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 3000 });
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
@@ -90,7 +93,8 @@ const AddBook = () => {
     formData.append("documentType", documentType);
     formData.append("inventoryNumber", inventoryNumber);
     formData.append("signature", signature);
-    formData.append("topic", topic); // Append the topic
+    formData.append("topic", topic);
+    formData.append("barcode", barcode); // Append the barcode
 
     if (mainImage) {
       formData.append("mainImage", mainImage);
@@ -144,6 +148,23 @@ const AddBook = () => {
       setFile(event.target.files[0]);
     }
   };
+  const handleScanBarcode = () => {
+    const html5QrCodeScanner = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: 250 },
+      false // verbose
+    );
+
+    html5QrCodeScanner.render(
+      (decodedText: string) => {
+        setBarcode(decodedText);
+        html5QrCodeScanner.clear();
+      },
+      (errorMessage: string) => {
+        console.error("Error scanning barcode: ", errorMessage);
+      }
+    );
+  };
 
   const handleMultipleFilesUpload = (
     event: ChangeEvent<HTMLInputElement>,
@@ -151,6 +172,30 @@ const AddBook = () => {
   ): void => {
     setFiles(event.target.files);
   };
+
+  useEffect(() => {
+    if (isScanning) {
+      const html5QrCodeScanner = new Html5QrcodeScanner(
+        "reader",
+        { fps: 10, qrbox: 250 },
+        false // verbose
+      );
+
+      html5QrCodeScanner.render(
+        (decodedText) => {
+          setBarcode(decodedText);
+          setIsScanning(false);
+        },
+        (error) => {
+          console.error("Error scanning:", error);
+        }
+      );
+
+      return () => {
+        html5QrCodeScanner.clear();
+      };
+    }
+  }, [isScanning]);
 
   const formBgColor = useColorModeValue("gray.50", "gray.700");
   const inputBgColor = useColorModeValue("white", "gray.800");
@@ -182,6 +227,21 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
+              <FormLabel htmlFor="barcode">Barcode</FormLabel>
+              <Input
+                id="barcode"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                bg={inputBgColor}
+              />
+              {isMobile && (
+                <Button mt={2} onClick={handleScanBarcode} colorScheme="teal">
+                  Scan Barcode
+                </Button>
+              )}
+            </FormControl>
+
+            <FormControl>
               <FormLabel htmlFor="title">Title</FormLabel>
               <Input
                 id="title"
@@ -191,7 +251,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="inventoryNumber">Инвентарен номер</FormLabel>
+              <FormLabel htmlFor="inventoryNumber">Inventory Number</FormLabel>
               <Input
                 id="inventoryNumber"
                 value={inventoryNumber}
@@ -200,7 +260,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="signature">Сигнатура</FormLabel>
+              <FormLabel htmlFor="signature">Signature</FormLabel>
               <Input
                 id="signature"
                 value={signature}
@@ -401,7 +461,7 @@ const AddBook = () => {
               </Select>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="topic">Теми</FormLabel>
+              <FormLabel htmlFor="topic">Topics</FormLabel>
               <Select
                 id="topic"
                 value={topic}

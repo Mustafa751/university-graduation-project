@@ -2,6 +2,7 @@ package sit.tuvarna.core.models.users;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "user_to_be_created")
@@ -12,7 +13,6 @@ public class UserToBeCreated extends PanacheEntity {
     private String middleName;
     private String lastName;
     private String gender;
-    private String address;
     private String email;
     private String phoneNumber;
     private String category;
@@ -21,6 +21,10 @@ public class UserToBeCreated extends PanacheEntity {
     private String specialty;
     private String course;
 
+    @ElementCollection
+    @CollectionTable(name = "user_to_be_created_addresses", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "address")
+    private List<String> addresses;
 
     // Getters and Setters
     public String getFakNumber() {
@@ -63,12 +67,12 @@ public class UserToBeCreated extends PanacheEntity {
         this.gender = gender;
     }
 
-    public String getAddress() {
-        return address;
+    public List<String> getAddresses() {
+        return addresses;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddresses(List<String> addresses) {
+        this.addresses = addresses;
     }
 
     public String getEmail() {
