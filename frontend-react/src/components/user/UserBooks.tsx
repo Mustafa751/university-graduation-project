@@ -18,6 +18,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface UnreturnedBook {
   bookId: number;
@@ -36,6 +37,7 @@ const UserBooks: React.FC = () => {
   const color = useColorModeValue("gray.600", "white");
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const fetchBooks = useCallback(async () => {
     const requestOptions: SendRequestOptions = {
@@ -90,19 +92,19 @@ const UserBooks: React.FC = () => {
       <Box flex="1" py="6">
         <Container maxWidth="container.xl">
           <Text fontSize="xl" mb="4" fontWeight="bold" color={color}>
-            Unreturned Books
+            {t("userBooks.unreturnedBooks")}
           </Text>
           <TableContainer bg={bg} borderRadius="lg" boxShadow="base" p="4">
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th>Book Name</Th>
-                  <Th>Author</Th>
-                  <Th>Inventory Number</Th>
-                  <Th>Signature</Th>
-                  <Th>Rental Start Date</Th>
-                  <Th>Rental End Date</Th>
-                  <Th>Actions</Th>
+                  <Th>{t("userBooks.bookName")}</Th>
+                  <Th>{t("userBooks.author")}</Th>
+                  <Th>{t("userBooks.inventoryNumber")}</Th>
+                  <Th>{t("userBooks.signature")}</Th>
+                  <Th>{t("userBooks.rentalStartDate")}</Th>
+                  <Th>{t("userBooks.rentalEndDate")}</Th>
+                  <Th>{t("userBooks.actions")}</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -117,13 +119,16 @@ const UserBooks: React.FC = () => {
                     </Td>
                     <Td>{new Date(book.rentalEndDate).toLocaleDateString()}</Td>
                     <Td>
-                      <Tooltip label="Return Book" aria-label="Return Book">
+                      <Tooltip
+                        label={t("userBooks.returnBook")}
+                        aria-label={t("userBooks.returnBook")}
+                      >
                         <Button
                           size="sm"
                           colorScheme="teal"
                           onClick={() => handleReturn(book.bookId)}
                         >
-                          Return
+                          {t("userBooks.return")}
                         </Button>
                       </Tooltip>
                     </Td>

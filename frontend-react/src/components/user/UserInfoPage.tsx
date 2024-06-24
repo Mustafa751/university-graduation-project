@@ -15,6 +15,7 @@ import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
+import { useTranslation } from "react-i18next";
 
 const UserInfoPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -24,6 +25,8 @@ const UserInfoPage: React.FC = () => {
   const [isLoadingBooks, setIsLoadingBooks] = useState<boolean>(false);
 
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   useEffect(() => {
     const fetchBooks = async () => {
       setIsLoadingBooks(true);
@@ -50,21 +53,21 @@ const UserInfoPage: React.FC = () => {
     };
 
     if (userId) fetchBooks();
-  }, [userId, logout]);
+  }, [userId, logout, navigate]);
 
-  if (!user) return <div>Loading...</div>;
+  if (!user) return <div>{t("loading")}</div>;
 
   return (
     <Container maxW="container.md" mt={8}>
       <Tabs isFitted variant="enclosed" colorScheme="purple">
         <TabList mb="1em">
-          <Tab>Books</Tab>
-          <Tab>Personal Info</Tab>
+          <Tab>{t("userInfo.books")}</Tab>
+          <Tab>{t("userInfo.personalInfo")}</Tab>
         </TabList>
         <TabPanels py="10px">
           <TabPanel>
             {isLoadingBooks ? (
-              <div>Loading books...</div>
+              <div>{t("userInfo.loadingBooks")}</div>
             ) : (
               <BooksTable books={books} />
             )}

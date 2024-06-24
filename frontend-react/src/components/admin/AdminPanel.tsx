@@ -1,3 +1,4 @@
+// src/components/AdminPanel.tsx
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -25,8 +26,10 @@ import Footer from "../common/Footer";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const AdminPanel: React.FC = () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState<AdminPanelProps[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<AdminPanelProps[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -59,7 +62,7 @@ const AdminPanel: React.FC = () => {
     };
 
     fetchUsers();
-  }, [logout]);
+  }, [logout, navigate]);
 
   useEffect(() => {
     const results = users.filter((user) =>
@@ -68,18 +71,47 @@ const AdminPanel: React.FC = () => {
     setFilteredUsers(results);
   }, [searchTerm, users]);
 
+  const handleDeleteUser = async (userId: number) => {
+    const requestOptions: SendRequestOptions = {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    try {
+      const response = await sendRequest<{ success: boolean }>(
+        `http://localhost:8089/api/users/delete-user?userId=${userId}`,
+        requestOptions,
+        navigate,
+        logout
+      );
+
+      if (response.success) {
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        setFilteredUsers((prevFilteredUsers) =>
+          prevFilteredUsers.filter((user) => user.id !== userId)
+        );
+      } else {
+        console.error("Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
+
   return (
     <Flex direction="column" minHeight="100vh">
       <Navbar />
       <Box flex="1" py="6">
         <Container maxWidth="container.xl">
           <Text fontSize="xl" mb="4" fontWeight="bold" color={color}>
-            User Management
+            {t('navbar.userManagement')}
           </Text>
           <Flex justify="flex-end" mb="4">
             <InputGroup maxWidth="400px">
               <Input
-                placeholder="Search by Faculty Number"
+                placeholder={t('form.searchFacultyNumber')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -90,10 +122,10 @@ const AdminPanel: React.FC = () => {
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th>Email</Th>
-                  <Th>Faculty Number</Th>
-                  <Th>Phone Number</Th>
-                  <Th>Actions</Th>
+                  <Th>{t('form.email')}</Th>
+                  <Th>{t('form.fakNumber')}</Th>
+                  <Th>{t('form.phoneNumber')}</Th>
+                  <Th>{t('form.actions')}</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -103,18 +135,29 @@ const AdminPanel: React.FC = () => {
                     <Td>{user.facultyNumber}</Td>
                     <Td>{user.phoneNumber}</Td>
                     <Td>
-                      <Tooltip
-                        label="View Unreturned Books"
-                        aria-label="View Unreturned Books"
-                      >
-                        <Button
-                          size="sm"
-                          colorScheme="teal"
-                          onClick={() => navigate(`/user-books/${user.id}`)}
+                      <Flex gap="2">
+                        <Tooltip
+                          label={t('form.viewBooks')}
+                          aria-label={t('form.viewBooks')}
                         >
-                          View Books
-                        </Button>
-                      </Tooltip>
+                          <Button
+                            size="sm"
+                            colorScheme="teal"
+                            onClick={() => navigate(`/user-books/${user.id}`)}
+                          >
+                            {t('form.viewBooks')}
+                          </Button>
+                        </Tooltip>
+                        <Tooltip label={t('form.deleteUser')} aria-label={t('form.deleteUser')}>
+                          <Button
+                            size="sm"
+                            colorScheme="red"
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            {t('form.deleteUser')}
+                          </Button>
+                        </Tooltip>
+                      </Flex>
                     </Td>
                   </Tr>
                 ))}

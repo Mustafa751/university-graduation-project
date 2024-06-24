@@ -18,10 +18,13 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { sendRequest } from "../hooks/http";
-import { BookKnowledgeArea, BookDetails } from "../interfaces/userInterfaces"; // Adjust the import path
+import { BookKnowledgeArea, BookDetails } from "../interfaces/userInterfaces";
+import { topics } from "../topics"; // Import topics from the new file
+import { useTranslation } from "react-i18next";
 
 const EditBook = () => {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
   const toast = useToast();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -38,7 +41,6 @@ const EditBook = () => {
   const [pdf, setPdf] = useState<File | null>(null);
   const [inventoryNumber, setInventoryNumber] = useState("");
   const [signature, setSignature] = useState("");
-
   const [subtitle, setSubtitle] = useState("");
   const [parallelTitle, setParallelTitle] = useState("");
   const [edition, setEdition] = useState("");
@@ -60,6 +62,9 @@ const EditBook = () => {
   const [documentType, setDocumentType] = useState<BookKnowledgeArea>(
     BookKnowledgeArea.Book
   );
+  const [topic, setTopic] = useState(""); // New state for topic
+  const [barcode, setBarcode] = useState(""); // New state for barcode
+  const [locationInLibrary, setLocationInLibrary] = useState(""); // New state for location in library
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -100,8 +105,11 @@ const EditBook = () => {
         setClassificationIndex(data.classificationIndex);
         setKnowledgeArea(data.knowledgeArea);
         setDocumentType(data.documentType);
-        setInventoryNumber(data.inventoryNumber); // New field
-        setSignature(data.signature); // New field
+        setInventoryNumber(data.inventoryNumber);
+        setSignature(data.signature);
+        setTopic(data.topic);
+        setBarcode(data.barcode);
+        setLocationInLibrary(data.locationInLibrary);
       } catch (error) {
         console.error("Error fetching book:", error);
       }
@@ -135,8 +143,11 @@ const EditBook = () => {
     formData.append("classificationIndex", classificationIndex);
     formData.append("knowledgeArea", knowledgeArea);
     formData.append("documentType", documentType);
-    formData.append("inventoryNumber", inventoryNumber); // New field
-    formData.append("signature", signature); // New field
+    formData.append("inventoryNumber", inventoryNumber);
+    formData.append("signature", signature);
+    formData.append("topic", topic);
+    formData.append("barcode", barcode);
+    formData.append("locationInLibrary", locationInLibrary);
 
     if (mainImage) {
       formData.append("mainImage", mainImage);
@@ -164,21 +175,21 @@ const EditBook = () => {
       .then((response: Response) => {
         if (response.ok) {
           toast({
-            title: "Update successful",
-            description: "Book updated successfully",
+            title: t("editBook.updateSuccessful"),
+            description: t("editBook.bookUpdatedSuccessfully"),
             status: "success",
             duration: 3000,
             isClosable: true,
             position: "top",
           });
         } else {
-          alert("Failed to update book");
+          alert(t("editBook.updateFailed"));
 
           response.text().then((text) => console.error(text)); // Log error message from the server
         }
       })
       .catch((error) => {
-        console.error("Network or other error:", error);
+        console.error(t("editBook.networkOrOtherError"), error);
       });
   };
 
@@ -205,7 +216,7 @@ const EditBook = () => {
     <Flex direction="column" minHeight="100vh">
       <Flex direction="column" align="center" justify="center" flex="1" pt={10}>
         <Text fontSize="2xl" fontWeight="bold" mb={5}>
-          Edit Book
+          {t("editBook.title")}
         </Text>
         <Box
           as="form"
@@ -218,7 +229,7 @@ const EditBook = () => {
         >
           <SimpleGrid columns={2} spacing={4}>
             <FormControl>
-              <FormLabel htmlFor="isbn">ISBN</FormLabel>
+              <FormLabel htmlFor="isbn">{t("editBook.isbn")}</FormLabel>
               <Input
                 id="isbn"
                 value={isbn}
@@ -227,7 +238,16 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="title">Title</FormLabel>
+              <FormLabel htmlFor="barcode">{t("editBook.barcode")}</FormLabel>
+              <Input
+                id="barcode"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="title">{t("editBook.titleLabel")}</FormLabel>
               <Input
                 id="title"
                 value={title}
@@ -235,9 +255,10 @@ const EditBook = () => {
                 bg={inputBgColor}
               />
             </FormControl>
-
             <FormControl>
-              <FormLabel htmlFor="inventoryNumber">Инвентарен номер</FormLabel>
+              <FormLabel htmlFor="inventoryNumber">
+                {t("editBook.inventoryNumber")}
+              </FormLabel>
               <Input
                 id="inventoryNumber"
                 value={inventoryNumber}
@@ -246,7 +267,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="signature">Сигнатура</FormLabel>
+              <FormLabel htmlFor="signature">
+                {t("editBook.signature")}
+              </FormLabel>
               <Input
                 id="signature"
                 value={signature}
@@ -255,7 +278,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="date">Date of Production</FormLabel>
+              <FormLabel htmlFor="date">
+                {t("editBook.dateOfProduction")}
+              </FormLabel>
               <Input
                 id="date"
                 type="date"
@@ -265,7 +290,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="author">Author</FormLabel>
+              <FormLabel htmlFor="author">{t("editBook.author")}</FormLabel>
               <Input
                 id="author"
                 value={author}
@@ -274,7 +299,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="subtitle">Subtitle</FormLabel>
+              <FormLabel htmlFor="subtitle">{t("editBook.subtitle")}</FormLabel>
               <Input
                 id="subtitle"
                 value={subtitle}
@@ -283,7 +308,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="parallelTitle">Parallel Title</FormLabel>
+              <FormLabel htmlFor="parallelTitle">
+                {t("editBook.parallelTitle")}
+              </FormLabel>
               <Input
                 id="parallelTitle"
                 value={parallelTitle}
@@ -292,7 +319,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="edition">Edition</FormLabel>
+              <FormLabel htmlFor="edition">{t("editBook.edition")}</FormLabel>
               <Input
                 id="edition"
                 value={edition}
@@ -302,7 +329,7 @@ const EditBook = () => {
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="placeOfPublication">
-                Place of Publication
+                {t("editBook.placeOfPublication")}
               </FormLabel>
               <Input
                 id="placeOfPublication"
@@ -312,7 +339,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="publisher">Publisher</FormLabel>
+              <FormLabel htmlFor="publisher">
+                {t("editBook.publisher")}
+              </FormLabel>
               <Input
                 id="publisher"
                 value={publisher}
@@ -321,7 +350,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="language">Language</FormLabel>
+              <FormLabel htmlFor="language">{t("editBook.language")}</FormLabel>
               <Input
                 id="language"
                 value={language}
@@ -330,7 +359,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="sourceTitle">Source Title</FormLabel>
+              <FormLabel htmlFor="sourceTitle">
+                {t("editBook.sourceTitle")}
+              </FormLabel>
               <Input
                 id="sourceTitle"
                 value={sourceTitle}
@@ -339,7 +370,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="volume">Volume</FormLabel>
+              <FormLabel htmlFor="volume">{t("editBook.volume")}</FormLabel>
               <Input
                 id="volume"
                 value={volume}
@@ -348,7 +379,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="issueNumber">Issue Number</FormLabel>
+              <FormLabel htmlFor="issueNumber">
+                {t("editBook.issueNumber")}
+              </FormLabel>
               <Input
                 id="issueNumber"
                 value={issueNumber}
@@ -357,7 +390,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="pages">Pages</FormLabel>
+              <FormLabel htmlFor="pages">{t("editBook.pages")}</FormLabel>
               <Input
                 id="pages"
                 value={pages}
@@ -366,7 +399,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="publicationYear">Publication Year</FormLabel>
+              <FormLabel htmlFor="publicationYear">
+                {t("editBook.publicationYear")}
+              </FormLabel>
               <Input
                 id="publicationYear"
                 value={publicationYear}
@@ -375,7 +410,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="notes">Notes</FormLabel>
+              <FormLabel htmlFor="notes">{t("editBook.notes")}</FormLabel>
               <Textarea
                 id="notes"
                 value={notes}
@@ -384,7 +419,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="price">Price</FormLabel>
+              <FormLabel htmlFor="price">{t("editBook.price")}</FormLabel>
               <Input
                 id="price"
                 value={price}
@@ -393,7 +428,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="keywords">Keywords</FormLabel>
+              <FormLabel htmlFor="keywords">{t("editBook.keywords")}</FormLabel>
               <Input
                 id="keywords"
                 value={keywords}
@@ -403,7 +438,7 @@ const EditBook = () => {
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="classificationIndex">
-                Classification Index
+                {t("editBook.classificationIndex")}
               </FormLabel>
               <Input
                 id="classificationIndex"
@@ -413,7 +448,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="knowledgeArea">Knowledge Area</FormLabel>
+              <FormLabel htmlFor="knowledgeArea">
+                {t("editBook.knowledgeArea")}
+              </FormLabel>
               <Select
                 id="knowledgeArea"
                 value={knowledgeArea}
@@ -424,13 +461,15 @@ const EditBook = () => {
               >
                 {Object.values(BookKnowledgeArea).map((area) => (
                   <option key={area} value={area}>
-                    {area}
+                    {t(`addBook.${area.toLowerCase()}`)}
                   </option>
                 ))}
               </Select>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="documentType">Document Type</FormLabel>
+              <FormLabel htmlFor="documentType">
+                {t("editBook.documentType")}
+              </FormLabel>
               <Select
                 id="documentType"
                 value={documentType}
@@ -441,13 +480,28 @@ const EditBook = () => {
               >
                 {Object.values(BookKnowledgeArea).map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {t(`addBook.${type.toLowerCase()}`)}
                   </option>
                 ))}
               </Select>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="quantity">Quantity</FormLabel>
+              <FormLabel htmlFor="topic">{t("editBook.topics")}</FormLabel>
+              <Select
+                id="topic"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                bg={inputBgColor}
+              >
+                {topics.map((topic) => (
+                  <option key={topic} value={topic}>
+                    {topic}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="quantity">{t("editBook.quantity")}</FormLabel>
               <NumberInput min={1}>
                 <NumberInputField
                   id="quantity"
@@ -458,7 +512,9 @@ const EditBook = () => {
               </NumberInput>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="description">Description</FormLabel>
+              <FormLabel htmlFor="description">
+                {t("editBook.description")}
+              </FormLabel>
               <Input
                 id="description"
                 value={description}
@@ -467,7 +523,20 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="mainImage">Main Image</FormLabel>
+              <FormLabel htmlFor="locationInLibrary">
+                {t("editBook.locationInLibrary")}
+              </FormLabel>
+              <Input
+                id="locationInLibrary"
+                value={locationInLibrary}
+                onChange={(e) => setLocationInLibrary(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="mainImage">
+                {t("editBook.mainImage")}
+              </FormLabel>
               <Input
                 id="mainImage"
                 type="file"
@@ -476,7 +545,9 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="otherImages">Other Images</FormLabel>
+              <FormLabel htmlFor="otherImages">
+                {t("editBook.otherImages")}
+              </FormLabel>
               <Input
                 id="otherImages"
                 type="file"
@@ -488,7 +559,7 @@ const EditBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="pdf">PDF</FormLabel>
+              <FormLabel htmlFor="pdf">{t("editBook.pdf")}</FormLabel>
               <Input
                 id="pdf"
                 type="file"
@@ -498,7 +569,7 @@ const EditBook = () => {
             </FormControl>
           </SimpleGrid>
           <Button type="submit" colorScheme="teal" width="full" mt={4}>
-            Save Changes
+            {t("editBook.saveChanges")}
           </Button>
         </Box>
       </Flex>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Flex,
@@ -19,6 +19,7 @@ import Footer from "../common/Footer";
 import { useNavigate, useParams } from "react-router-dom";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface BookData {
   id: number;
@@ -31,39 +32,41 @@ interface BookData {
 }
 
 function BookDetails({ bookData }: { bookData: BookData }) {
+  const { t } = useTranslation();
   return (
     <VStack align="start" spacing="4" fontSize="lg">
       <Heading as="h2" size="lg" color="teal.500">
-        Book Details
+        {t("singleBook.detailsTitle")}
       </Heading>
       <SimpleGrid columns={2} spacingX="40px" spacingY="20px" w="100%">
         <GridItem>
-          <Text fontWeight="bold">ISBN:</Text>
+          <Text fontWeight="bold">{t("singleBook.isbn")}:</Text>
           <Text>{bookData.isbn}</Text>
         </GridItem>
         <GridItem>
-          <Text fontWeight="bold">Author:</Text>
+          <Text fontWeight="bold">{t("singleBook.author")}:</Text>
           <Text>{bookData.author}</Text>
         </GridItem>
         <GridItem>
-          <Text fontWeight="bold">Production Date:</Text>
+          <Text fontWeight="bold">{t("singleBook.productionDate")}:</Text>
           <Text>{bookData.productionDate}</Text>
         </GridItem>
         <GridItem>
-          <Text fontWeight="bold">Quantity:</Text>
+          <Text fontWeight="bold">{t("singleBook.quantity")}:</Text>
           <Text>{bookData.quantity}</Text>
         </GridItem>
       </SimpleGrid>
-      <Text fontWeight="bold">Description:</Text>
+      <Text fontWeight="bold">{t("singleBook.description")}:</Text>
       <Text>{bookData.description}</Text>
       <Button colorScheme="teal" variant="solid" w="100%">
-        Download
+        {t("singleBook.download")}
       </Button>
     </VStack>
   );
 }
 
 function SingleBook() {
+  const { t } = useTranslation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { id } = useParams(); // Get the book id from the URL
   const [bookData, setBookData] = useState<BookData | null>(null);
@@ -102,7 +105,7 @@ function SingleBook() {
     fetchBook();
   }, [fetchBook]);
 
-  if (loading || !bookData) return <div>Loading...</div>;
+  if (loading || !bookData) return <div>{t("singleBook.loading")}</div>;
 
   const nextImage = () => {
     setCurrentImageIndex(
@@ -133,7 +136,7 @@ function SingleBook() {
         {/* Image carousel container */}
         <Flex align="center" justify="center" position="relative">
           <IconButton
-            aria-label="Previous image"
+            aria-label={t("singleBook.previousImage")}
             icon={<ChevronLeftIcon />}
             onClick={prevImage}
             position="absolute"
@@ -151,7 +154,7 @@ function SingleBook() {
             m={2}
           />
           <IconButton
-            aria-label="Next image"
+            aria-label={t("singleBook.nextImage")}
             icon={<ChevronRightIcon />}
             onClick={nextImage}
             position="absolute"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   InputGroup,
   InputRightElement,
@@ -12,26 +12,17 @@ import {
   Image,
   VStack,
   Button,
-  Select,
 } from "@chakra-ui/react";
 import { SearchIcon } from "@chakra-ui/icons";
-import { debounce, throttle } from "lodash";
+import { debounce } from "lodash";
 import { useNavigate } from "react-router-dom";
 import { BookData } from "../interfaces/userInterfaces";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
+import { BookKnowledgeArea } from "../interfaces/userInterfaces";
 import { useTranslation } from "react-i18next";
 
-function Book({
-  id,
-  name,
-  author,
-  quantity,
-  mainImage,
-  price,
-  knowledgeArea,
-  language,
-}: BookData) {
+function Book({ id, name, quantity, mainImage }: BookData) {
   const navigate = useNavigate();
 
   return (
@@ -45,36 +36,24 @@ function Book({
     >
       <Image src={`data:image/jpeg;base64,${mainImage}`} alt={name} />
       <Text mt="2" fontWeight="semibold">
-        {name} {author ? `by ${author}` : ""}
+        {name}
       </Text>
-      <Text color="gray.500">
-        {quantity} {quantity === 1 ? "available" : "available"}
-      </Text>
-      <Text color="gray.500">Price: {price}</Text>
-      <Text color="gray.500">Knowledge Area: {knowledgeArea}</Text>
-      <Text color="gray.500">Language: {language}</Text>
+      <Text color="gray.500">{quantity} readers</Text>
     </Box>
   );
 }
 
-function BooksDisplay() {
+function GraduationThesesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [books, setBooks] = useState<BookData[]>([]);
-  const [page, setPage] = useState<number>(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [searchBy, setSearchBy] = useState<string>("title"); // New state for search criteria
   const [searchResults, setSearchResults] = useState<BookData[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const observer = useRef<IntersectionObserver | null>(null);
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const isFetching = useRef<boolean>(false);
 
   const fetchBooks = useCallback(async () => {
-    if (isFetching.current) return;
-    isFetching.current = true;
     setLoading(true);
     const requestOptions: SendRequestOptions = {
       method: "GET",
@@ -85,41 +64,23 @@ function BooksDisplay() {
 
     try {
       const data = await sendRequest<Array<BookData>>(
-        `http://localhost:8081/api/books?page=${page}&limit=10`,
+        `http://localhost:8081/api/books?knowledgeArea=${BookKnowledgeArea.GraduationTheses}&page=1&limit=100`,
         requestOptions,
         navigate,
         logout
       );
 
-      const newBooks = data.map((item: BookData) => ({
-        id: item.id,
-        name: item.name,
-        author: item.author, // Ensure this field is populated
-        quantity: item.quantity,
-        mainImage: item.mainImage,
-        price: item.price,
-        knowledgeArea: item.knowledgeArea,
-        language: item.language,
-      }));
-
-      setBooks((prevBooks) => {
-        const existingBookIds = new Set(prevBooks.map((book) => book.id));
-        const filteredBooks = newBooks.filter(
-          (book) => !existingBookIds.has(book.id)
-        );
-        return [...prevBooks, ...filteredBooks];
-      });
+      setBooks(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
-      isFetching.current = false;
       setLoading(false);
     }
-  }, [page, navigate, logout]);
+  }, [navigate, logout]);
 
   useEffect(() => {
     fetchBooks();
-  }, [fetchBooks, page]);
+  }, [fetchBooks]);
 
   const debouncedSearch = useCallback(
     debounce(async (query) => {
@@ -134,7 +95,7 @@ function BooksDisplay() {
 
       try {
         const data = await sendRequest<Array<BookData>>(
-          `http://localhost:8081/api/books/search?query=${query}&searchBy=${searchBy}`,
+          `http://localhost:8081/api/books/search?knowledgeArea=${BookKnowledgeArea.GraduationTheses}&query=${query}`,
           requestOptions,
           navigate,
           logout
@@ -146,7 +107,7 @@ function BooksDisplay() {
         console.error("Error searching books:", error);
       }
     }, 500),
-    [navigate, logout, searchBy]
+    [navigate, logout]
   );
 
   useEffect(() => {
@@ -156,27 +117,6 @@ function BooksDisplay() {
       setIsSearching(false);
     }
   }, [searchTerm, debouncedSearch]);
-
-  useEffect(() => {
-    if (observer.current) {
-      observer.current.disconnect();
-    }
-
-    observer.current = new IntersectionObserver(
-      throttle((entries) => {
-        if (entries[0].isIntersecting && !loading && !isFetching.current) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      }, 1000),
-      { threshold: 1.0 }
-    );
-
-    if (sentinelRef.current) {
-      observer.current.observe(sentinelRef.current);
-    }
-
-    return () => observer.current?.disconnect();
-  }, [loading]);
 
   return (
     <Flex direction="row" minH="100vh">
@@ -196,7 +136,7 @@ function BooksDisplay() {
             onClick={() => navigate("/books")}
             fontSize="lg"
           >
-            {t("booksDisplay.books")}
+            {t("menu.books")}
           </Button>
           <Button
             variant="link"
@@ -204,7 +144,7 @@ function BooksDisplay() {
             onClick={() => navigate("/articles")}
             fontSize="lg"
           >
-            {t("booksDisplay.articles")}
+            {t("menu.articles")}
           </Button>
           <Button
             variant="link"
@@ -212,7 +152,7 @@ function BooksDisplay() {
             onClick={() => navigate("/periodicals")}
             fontSize="lg"
           >
-            {t("booksDisplay.periodicals")}
+            {t("menu.periodicals")}
           </Button>
           <Button
             variant="link"
@@ -220,29 +160,13 @@ function BooksDisplay() {
             onClick={() => navigate("/readers")}
             fontSize="lg"
           >
-            {t("booksDisplay.readers")}
-          </Button>
-          <Button
-            variant="link"
-            color="white"
-            onClick={() => navigate("/graduation-theses")}
-            fontSize="lg"
-          >
-            {t("booksDisplay.graduationTheses")}
-          </Button>
-          <Button
-            variant="link"
-            color="white"
-            onClick={() => navigate("/dissertations")}
-            fontSize="lg"
-          >
-            {t("booksDisplay.dissertations")}
+            {t("menu.readers")}
           </Button>
         </VStack>
       </Flex>
       <Flex direction="column" align="center" minH="100vh" p="4" flex="1">
         <Heading as="h1" size="xl" color="teal.500" mb="4">
-          {t("booksDisplay.title")}
+          {t("graduationThesesPage.title")}
         </Heading>
         <Flex
           justify="flex-end"
@@ -250,26 +174,9 @@ function BooksDisplay() {
           paddingRight="4"
           paddingBottom="4"
         >
-          <InputGroup width="300px" mr="4">
-            <Select
-              value={searchBy}
-              onChange={(e) => setSearchBy(e.target.value)}
-              bg="white"
-            >
-              <option value="title">{t("booksDisplay.searchByTitle")}</option>
-              <option value="author">{t("booksDisplay.searchByAuthor")}</option>
-              <option value="topic">{t("booksDisplay.searchByTopic")}</option>
-              <option value="graduation-theses">
-                {t("booksDisplay.searchByGraduationTheses")}
-              </option>
-              <option value="dissertations">
-                {t("booksDisplay.searchByDissertations")}
-              </option>
-            </Select>
-          </InputGroup>
           <InputGroup width="300px">
             <Input
-              placeholder={t("booksDisplay.searchPlaceholder", { searchBy })}
+              placeholder={t("graduationThesesPage.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -294,11 +201,10 @@ function BooksDisplay() {
             ))}
           </SimpleGrid>
           {loading && <Spinner color="teal.500" mt="4" />}
-          <div ref={sentinelRef}></div>
         </Flex>
       </Flex>
     </Flex>
   );
 }
 
-export default BooksDisplay;
+export default GraduationThesesPage;

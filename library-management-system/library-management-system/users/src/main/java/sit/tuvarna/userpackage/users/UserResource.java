@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import sit.tuvarna.core.models.JwtResponse;
 import sit.tuvarna.core.models.users.LoginRequest;
+import sit.tuvarna.core.models.users.User;
 import sit.tuvarna.core.models.users.UserDTO;
 import sit.tuvarna.core.models.users.UserStateManagementDTO;
 
@@ -33,6 +34,10 @@ public class UserResource {
     public List<UserDTO> getUsers() {
         return userService.getUsers();
     }
+
+    @GET
+    @Path("/getUserStatistics")
+    public List<User> getUserStatistics(){return userService.getUserStatistics();}
 
     @GET
     @Path("/rent-users")
@@ -102,5 +107,13 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsersWithBooksDueInLessThanTwoDays() {
         return Response.ok(userService.getUsersWithBooksDueInLessThanTwoDays()).build();
+    }
+
+    @DELETE
+    @Path("/delete-user")
+    @PermitAll
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUser(@QueryParam("userId") Long userId) {
+        return Response.ok(userService.deleteUser(userId)).build();
     }
 }

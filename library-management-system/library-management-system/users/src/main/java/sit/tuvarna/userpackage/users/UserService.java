@@ -151,4 +151,15 @@ public class UserService {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
+    public List<User> getUserStatistics() {
+        return userRepository.listAll();
+    }
+
+    @Transactional
+        public Object deleteUser(Long userId){
+        User user = userRepository.findById(userId);
+        userRepository.delete(user);
+        return null;
+    }
 }

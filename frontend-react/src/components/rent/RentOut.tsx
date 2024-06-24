@@ -14,6 +14,7 @@ import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface Option {
   value: string | number;
@@ -21,6 +22,7 @@ interface Option {
 }
 
 const RentOut: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { logout } = useAuth();
 
@@ -94,7 +96,7 @@ const RentOut: React.FC = () => {
 
   const handleRentOut = async () => {
     if (!selectedBook || !selectedUser || !returnDate) {
-      alert("Please fill all the fields.");
+      alert(t("rentOut.fillAllFields"));
       return;
     }
 
@@ -118,7 +120,7 @@ const RentOut: React.FC = () => {
         navigate,
         logout
       );
-      alert("Book rented successfully!");
+      alert(t("rentOut.success"));
       // Optionally, reset the form
       setSelectedBook(null);
       setSelectedUser(null);
@@ -133,31 +135,31 @@ const RentOut: React.FC = () => {
     <Box minHeight="100vh" display="flex" flexDirection="column">
       <Flex direction="column" align="center" justify="center" p={4} flex="1">
         <Heading as="h1" size="xl" color="teal.500" mb="4">
-          Rent Out a Book
+          {t("rentOut.title")}
         </Heading>
         <VStack spacing="4" width="100%" maxW="600px">
           <FormControl isRequired>
-            <FormLabel htmlFor="book">Select Book</FormLabel>
+            <FormLabel htmlFor="book">{t("rentOut.selectBook")}</FormLabel>
             <Select
               id="book"
               options={books}
               value={selectedBook}
               onChange={(option) => setSelectedBook(option as Option)}
-              placeholder="Search and select a book..."
+              placeholder={t("rentOut.bookPlaceholder")}
             />
           </FormControl>
           <FormControl isRequired>
-            <FormLabel htmlFor="user">Select User</FormLabel>
+            <FormLabel htmlFor="user">{t("rentOut.selectUser")}</FormLabel>
             <Select
               id="user"
               options={users}
               value={selectedUser}
               onChange={(option) => setSelectedUser(option as Option)}
-              placeholder="Search and select a user..."
+              placeholder={t("rentOut.userPlaceholder")}
             />
           </FormControl>
           <FormControl isRequired>
-            <FormLabel htmlFor="date">Return Date</FormLabel>
+            <FormLabel htmlFor="date">{t("rentOut.returnDate")}</FormLabel>
             <Input
               id="date"
               type="date"
@@ -167,7 +169,7 @@ const RentOut: React.FC = () => {
             />
           </FormControl>
           <Button colorScheme="teal" onClick={handleRentOut}>
-            Rent Out
+            {t("rentOut.rentOutButton")}
           </Button>
         </VStack>
       </Flex>

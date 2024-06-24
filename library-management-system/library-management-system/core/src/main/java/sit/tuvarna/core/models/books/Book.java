@@ -55,6 +55,8 @@ public class Book extends PanacheEntity {
     @Enumerated(EnumType.STRING)
     private BookTopic topic; // New field
 
+    public String locationInLibrary; // New field
+
     // Constructors
     public Book() {
         this.images = new ArrayList<>();
@@ -182,6 +184,14 @@ public class Book extends PanacheEntity {
         this.documentType = documentType;
     }
 
+    public void setTopic(BookTopic topic) {
+        this.topic = topic;
+    }
+
+    public void setLocationInLibrary(String locationInLibrary) {
+        this.locationInLibrary = locationInLibrary;
+    }
+
     // Getters for all fields
     public String getName() {
         return name;
@@ -283,11 +293,11 @@ public class Book extends PanacheEntity {
         return documentType;
     }
 
-    public void setTopic(BookTopic topic) {
-        this.topic = topic;
-    }
-
     public BookTopic getTopic() {
         return topic;
+    }
+
+    public String getLocationInLibrary() {
+        return locationInLibrary;
     }
 }

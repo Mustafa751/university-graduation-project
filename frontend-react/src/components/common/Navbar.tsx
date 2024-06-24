@@ -1,3 +1,4 @@
+// src/common/Navbar.tsx
 import React from "react";
 import {
   Flex,
@@ -59,7 +60,7 @@ function Navbar() {
         ) : (
           <>
             <IconButton
-              aria-label="User Profile"
+              aria-label={t("navbar.userProfile")}
               icon={<FiUser />}
               colorScheme="teal"
               variant="ghost"
@@ -72,14 +73,14 @@ function Navbar() {
               colorScheme="teal"
               onClick={() => navigate("/dashboard")}
             >
-              Dashboard
+              {t("navbar.dashboard")}
             </Button>
             <Button
               mr="2"
               colorScheme="teal"
               onClick={() => navigate("/usersToBeCreated")}
             >
-              UsersToBeCreated
+              {t("navbar.usersToBeCreated")}
             </Button>
             {userRole?.toLowerCase() === "admin" && (
               <>
@@ -88,10 +89,10 @@ function Navbar() {
                   colorScheme="teal"
                   onClick={() => navigate("/admin-panel")}
                 >
-                  Admin Panel
+                  {t("navbar.adminPanel")}
                 </Button>
                 <IconButton
-                  aria-label="Scan QR Code"
+                  aria-label={t("navbar.scanQRCode")}
                   icon={<FiCamera />}
                   onClick={onOpen}
                   colorScheme="teal"
@@ -103,7 +104,7 @@ function Navbar() {
               </>
             )}
             <IconButton
-              aria-label="Logout"
+              aria-label={t("navbar.logout")}
               icon={<FiSun />}
               onClick={logout}
               colorScheme="teal"
@@ -112,9 +113,9 @@ function Navbar() {
               mr="2"
             />
             <IconButton
-              aria-label={`Toggle ${
-                colorMode === "light" ? "Dark" : "Light"
-              } Mode`}
+              aria-label={t(
+                `navbar.toggle${colorMode === "light" ? "Dark" : "Light"}Mode`
+              )}
               icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
               onClick={toggleColorMode}
               colorScheme="teal"
@@ -142,7 +143,7 @@ function Navbar() {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Scan QR Code</ModalHeader>
+          <ModalHeader>{t("navbar.scanQRCode")}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <QrScannerComponent onClose={onClose} />

@@ -16,6 +16,7 @@ import { Column, useTable } from "react-table";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface UserToBeCreatedTableProps {
   users: UserToBeCreated[];
@@ -27,27 +28,29 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
   const data = React.useMemo(() => users, [users]);
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { t } = useTranslation();
+
   const columns: Column<UserToBeCreated>[] = React.useMemo(
     () => [
       {
-        Header: "FAK Number",
+        Header: t("userTable.fakNumber"),
         accessor: "fakNumber",
       },
       {
-        Header: "Email",
+        Header: t("userTable.email"),
         accessor: "email",
       },
       {
-        Header: "Phone Number",
+        Header: t("userTable.phoneNumber"),
         accessor: "phoneNumber",
       },
       {
-        Header: "Actions",
+        Header: t("userTable.actions"),
         id: "actions",
         Cell: ({ row }) => (
           <React.Fragment>
             <Tooltip
-              label="Create as Student"
+              label={t("userTable.createAsStudent")}
               aria-label="Create as Student tooltip"
             >
               <IconButton
@@ -58,7 +61,7 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
               />
             </Tooltip>
             <Tooltip
-              label="Create as Teacher"
+              label={t("userTable.createAsTeacher")}
               aria-label="Create as Teacher tooltip"
             >
               <IconButton
@@ -69,7 +72,7 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
               />
             </Tooltip>
             <Tooltip
-              label="Create as Admin"
+              label={t("userTable.createAsAdmin")}
               aria-label="Create as Admin tooltip"
             >
               <IconButton
@@ -79,7 +82,7 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
                 aria-label="Create as Admin"
               />
             </Tooltip>
-            <Tooltip label="Delete" aria-label="Delete tooltip">
+            <Tooltip label={t("userTable.delete")} aria-label="Delete tooltip">
               <IconButton
                 icon={<FiTrash2 />}
                 onClick={() => alert(`Deleting ${row.original.email}`)} // Placeholder function
@@ -91,8 +94,9 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
         ),
       },
     ],
-    []
+    [t]
   );
+
   const createUserWithRole = async (user: UserToBeCreated, role: Roles) => {
     try {
       const requestOptions: SendRequestOptions = {
@@ -110,17 +114,20 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
         logout
       ).then((response: Response) => {
         if (response) {
-          alert(`User created as ${role}`);
+          alert(t("userTable.userCreated", { role }));
         } else {
-          throw new Error("Failed to create user");
+          throw new Error(t("userTable.creationFailed"));
         }
       });
     } catch (error) {
       alert(
-        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+        `Error: ${
+          error instanceof Error ? error.message : t("userTable.unknownError")
+        }`
       );
     }
   };
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data });
 

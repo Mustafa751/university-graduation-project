@@ -10,30 +10,34 @@ import {
 } from "@chakra-ui/react";
 import { Book } from "../interfaces/userInterfaces"; // Adjust the import path as needed
 import { Column, useTable } from "react-table";
+import { useTranslation } from "react-i18next";
 
 interface BooksTableProps {
   books: Book[];
 }
 
 const BooksTable: React.FC<BooksTableProps> = ({ books }) => {
+  const { t } = useTranslation();
+
   const data = React.useMemo(() => books, [books]);
   const columns: Column<Book>[] = React.useMemo(
     () => [
       {
-        Header: "Book Name",
+        Header: t("booksTable.bookName"),
         accessor: "name",
       },
       {
-        Header: "Date Taken",
+        Header: t("booksTable.dateTaken"),
         accessor: "dateTaken",
       },
       {
-        Header: "Status",
+        Header: t("booksTable.status"),
         accessor: "status",
-        Cell: ({ value }) => (value ? "Returned" : "Not Returned"),
+        Cell: ({ value }) =>
+          value ? t("booksTable.returned") : t("booksTable.notReturned"),
       },
     ],
-    []
+    [t]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =

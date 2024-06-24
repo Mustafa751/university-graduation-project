@@ -1,3 +1,4 @@
+// src/components/ArticlesPage.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import {
   InputGroup,
@@ -20,6 +21,7 @@ import { BookData } from "../interfaces/userInterfaces";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
 import { useAuth } from "../auth/AuthContext";
 import { BookKnowledgeArea } from "../interfaces/userInterfaces";
+import { useTranslation } from "react-i18next";
 
 function Book({ id, name, quantity, mainImage }: BookData) {
   const navigate = useNavigate();
@@ -43,6 +45,7 @@ function Book({ id, name, quantity, mainImage }: BookData) {
 }
 
 function ArticlesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
@@ -134,7 +137,7 @@ function ArticlesPage() {
             onClick={() => navigate("/books")}
             fontSize="lg"
           >
-            Книги
+            {t("articlesPage.books")}
           </Button>
           <Button
             variant="link"
@@ -142,7 +145,7 @@ function ArticlesPage() {
             onClick={() => navigate("/articles")}
             fontSize="lg"
           >
-            Статии
+            {t("articlesPage.articles")}
           </Button>
           <Button
             variant="link"
@@ -150,7 +153,7 @@ function ArticlesPage() {
             onClick={() => navigate("/periodicals")}
             fontSize="lg"
           >
-            Периодични издания
+            {t("articlesPage.periodicals")}
           </Button>
           <Button
             variant="link"
@@ -158,13 +161,13 @@ function ArticlesPage() {
             onClick={() => navigate("/readers")}
             fontSize="lg"
           >
-            Читатели
+            {t("articlesPage.readers")}
           </Button>
         </VStack>
       </Flex>
       <Flex direction="column" align="center" minH="100vh" p="4" flex="1">
         <Heading as="h1" size="xl" color="teal.500" mb="4">
-          Articles
+          {t("articlesPage.title")}
         </Heading>
         <Flex
           justify="flex-end"
@@ -174,7 +177,7 @@ function ArticlesPage() {
         >
           <InputGroup width="300px">
             <Input
-              placeholder="Search by title..."
+              placeholder={t("articlesPage.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

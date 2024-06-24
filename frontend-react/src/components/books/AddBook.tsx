@@ -1,3 +1,4 @@
+// src/components/AddBook.tsx
 import React, { ChangeEvent, useState, useEffect } from "react";
 import {
   Text,
@@ -24,8 +25,10 @@ import { BookKnowledgeArea } from "../interfaces/userInterfaces"; // Adjust the 
 import { topics } from "../topics"; // Import topics from the new file
 import { Html5QrcodeScanner } from "html5-qrcode";
 import { useMediaQuery } from "react-responsive";
+import { useTranslation } from "react-i18next";
 
 const AddBook = () => {
+  const { t } = useTranslation();
   const toast = useToast();
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -63,8 +66,10 @@ const AddBook = () => {
   );
   const [topic, setTopic] = useState(""); // New state for topic
   const [barcode, setBarcode] = useState(""); // New state for barcode
+  const [locationInLibrary, setLocationInLibrary] = useState(""); // New state for location in library
   const [isScanning, setIsScanning] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 3000 });
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData();
@@ -95,6 +100,7 @@ const AddBook = () => {
     formData.append("signature", signature);
     formData.append("topic", topic);
     formData.append("barcode", barcode); // Append the barcode
+    formData.append("locationInLibrary", locationInLibrary); // Append the location in library
 
     if (mainImage) {
       formData.append("mainImage", mainImage);
@@ -122,15 +128,15 @@ const AddBook = () => {
       .then((response: Response) => {
         if (response.ok) {
           toast({
-            title: "Upload successful",
-            description: "Book added successfully",
+            title: t("addBook.uploadSuccessful"),
+            description: t("addBook.bookAdded"),
             status: "success",
             duration: 3000,
             isClosable: true,
             position: "top",
           });
         } else {
-          alert("Failed to add book");
+          alert(t("addBook.uploadFailed"));
 
           response.text().then((text) => console.error(text)); // Log error message from the server
         }
@@ -148,6 +154,7 @@ const AddBook = () => {
       setFile(event.target.files[0]);
     }
   };
+
   const handleScanBarcode = () => {
     const html5QrCodeScanner = new Html5QrcodeScanner(
       "reader",
@@ -205,7 +212,7 @@ const AddBook = () => {
       <Navbar />
       <Flex direction="column" align="center" justify="center" flex="1" pt={10}>
         <Text fontSize="2xl" fontWeight="bold" mb={5}>
-          Add a New Book
+          {t("addBook.addNewBook")}
         </Text>
         <Box
           as="form"
@@ -218,7 +225,7 @@ const AddBook = () => {
         >
           <SimpleGrid columns={2} spacing={4}>
             <FormControl>
-              <FormLabel htmlFor="isbn">ISBN</FormLabel>
+              <FormLabel htmlFor="isbn">{t("addBook.isbn")}</FormLabel>
               <Input
                 id="isbn"
                 value={isbn}
@@ -227,7 +234,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="barcode">Barcode</FormLabel>
+              <FormLabel htmlFor="barcode">{t("addBook.barcode")}</FormLabel>
               <Input
                 id="barcode"
                 value={barcode}
@@ -236,13 +243,13 @@ const AddBook = () => {
               />
               {isMobile && (
                 <Button mt={2} onClick={handleScanBarcode} colorScheme="teal">
-                  Scan Barcode
+                  {t("addBook.scanBarcode")}
                 </Button>
               )}
             </FormControl>
 
             <FormControl>
-              <FormLabel htmlFor="title">Title</FormLabel>
+              <FormLabel htmlFor="title">{t("addBook.title")}</FormLabel>
               <Input
                 id="title"
                 value={title}
@@ -251,7 +258,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="inventoryNumber">Inventory Number</FormLabel>
+              <FormLabel htmlFor="inventoryNumber">
+                {t("addBook.inventoryNumber")}
+              </FormLabel>
               <Input
                 id="inventoryNumber"
                 value={inventoryNumber}
@@ -260,7 +269,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="signature">Signature</FormLabel>
+              <FormLabel htmlFor="signature">
+                {t("addBook.signature")}
+              </FormLabel>
               <Input
                 id="signature"
                 value={signature}
@@ -269,7 +280,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="date">Date of Production</FormLabel>
+              <FormLabel htmlFor="date">
+                {t("addBook.dateOfProduction")}
+              </FormLabel>
               <Input
                 id="date"
                 type="date"
@@ -279,7 +292,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="author">Author</FormLabel>
+              <FormLabel htmlFor="author">{t("addBook.author")}</FormLabel>
               <Input
                 id="author"
                 value={author}
@@ -288,7 +301,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="subtitle">Subtitle</FormLabel>
+              <FormLabel htmlFor="subtitle">{t("addBook.subtitle")}</FormLabel>
               <Input
                 id="subtitle"
                 value={subtitle}
@@ -297,7 +310,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="parallelTitle">Parallel Title</FormLabel>
+              <FormLabel htmlFor="parallelTitle">
+                {t("addBook.parallelTitle")}
+              </FormLabel>
               <Input
                 id="parallelTitle"
                 value={parallelTitle}
@@ -306,7 +321,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="edition">Edition</FormLabel>
+              <FormLabel htmlFor="edition">{t("addBook.edition")}</FormLabel>
               <Input
                 id="edition"
                 value={edition}
@@ -316,7 +331,7 @@ const AddBook = () => {
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="placeOfPublication">
-                Place of Publication
+                {t("addBook.placeOfPublication")}
               </FormLabel>
               <Input
                 id="placeOfPublication"
@@ -326,7 +341,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="publisher">Publisher</FormLabel>
+              <FormLabel htmlFor="publisher">
+                {t("addBook.publisher")}
+              </FormLabel>
               <Input
                 id="publisher"
                 value={publisher}
@@ -335,7 +352,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="language">Language</FormLabel>
+              <FormLabel htmlFor="language">{t("addBook.language")}</FormLabel>
               <Input
                 id="language"
                 value={language}
@@ -344,7 +361,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="sourceTitle">Source Title</FormLabel>
+              <FormLabel htmlFor="sourceTitle">
+                {t("addBook.sourceTitle")}
+              </FormLabel>
               <Input
                 id="sourceTitle"
                 value={sourceTitle}
@@ -353,7 +372,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="volume">Volume</FormLabel>
+              <FormLabel htmlFor="volume">{t("addBook.volume")}</FormLabel>
               <Input
                 id="volume"
                 value={volume}
@@ -362,7 +381,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="issueNumber">Issue Number</FormLabel>
+              <FormLabel htmlFor="issueNumber">
+                {t("addBook.issueNumber")}
+              </FormLabel>
               <Input
                 id="issueNumber"
                 value={issueNumber}
@@ -371,7 +392,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="pages">Pages</FormLabel>
+              <FormLabel htmlFor="pages">{t("addBook.pages")}</FormLabel>
               <Input
                 id="pages"
                 value={pages}
@@ -380,7 +401,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="publicationYear">Publication Year</FormLabel>
+              <FormLabel htmlFor="publicationYear">
+                {t("addBook.publicationYear")}
+              </FormLabel>
               <Input
                 id="publicationYear"
                 value={publicationYear}
@@ -389,7 +412,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="notes">Notes</FormLabel>
+              <FormLabel htmlFor="notes">{t("addBook.notes")}</FormLabel>
               <Textarea
                 id="notes"
                 value={notes}
@@ -398,7 +421,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="price">Price</FormLabel>
+              <FormLabel htmlFor="price">{t("addBook.price")}</FormLabel>
               <Input
                 id="price"
                 value={price}
@@ -407,7 +430,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="keywords">Keywords</FormLabel>
+              <FormLabel htmlFor="keywords">{t("addBook.keywords")}</FormLabel>
               <Input
                 id="keywords"
                 value={keywords}
@@ -417,7 +440,7 @@ const AddBook = () => {
             </FormControl>
             <FormControl>
               <FormLabel htmlFor="classificationIndex">
-                Classification Index
+                {t("addBook.classificationIndex")}
               </FormLabel>
               <Input
                 id="classificationIndex"
@@ -427,7 +450,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="knowledgeArea">Knowledge Area</FormLabel>
+              <FormLabel htmlFor="knowledgeArea">
+                {t("addBook.knowledgeArea")}
+              </FormLabel>
               <Select
                 id="knowledgeArea"
                 value={knowledgeArea}
@@ -438,13 +463,15 @@ const AddBook = () => {
               >
                 {Object.values(BookKnowledgeArea).map((area) => (
                   <option key={area} value={area}>
-                    {area}
+                    {t(`addBook.${area.toLowerCase()}`)}
                   </option>
                 ))}
               </Select>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="documentType">Document Type</FormLabel>
+              <FormLabel htmlFor="documentType">
+                {t("addBook.documentType")}
+              </FormLabel>
               <Select
                 id="documentType"
                 value={documentType}
@@ -455,13 +482,13 @@ const AddBook = () => {
               >
                 {Object.values(BookKnowledgeArea).map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {t(`addBook.${type.toLowerCase()}`)}
                   </option>
                 ))}
               </Select>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="topic">Topics</FormLabel>
+              <FormLabel htmlFor="topic">{t("addBook.topics")}</FormLabel>
               <Select
                 id="topic"
                 value={topic}
@@ -476,7 +503,7 @@ const AddBook = () => {
               </Select>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="quantity">Quantity</FormLabel>
+              <FormLabel htmlFor="quantity">{t("addBook.quantity")}</FormLabel>
               <NumberInput min={1}>
                 <NumberInputField
                   id="quantity"
@@ -487,7 +514,9 @@ const AddBook = () => {
               </NumberInput>
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="description">Description</FormLabel>
+              <FormLabel htmlFor="description">
+                {t("addBook.description")}
+              </FormLabel>
               <Input
                 id="description"
                 value={description}
@@ -496,7 +525,20 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="mainImage">Main Image</FormLabel>
+              <FormLabel htmlFor="locationInLibrary">
+                {t("addBook.locationInLibrary")}
+              </FormLabel>
+              <Input
+                id="locationInLibrary"
+                value={locationInLibrary}
+                onChange={(e) => setLocationInLibrary(e.target.value)}
+                bg={inputBgColor}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="mainImage">
+                {t("addBook.mainImage")}
+              </FormLabel>
               <Input
                 id="mainImage"
                 type="file"
@@ -505,7 +547,9 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="otherImages">Other Images</FormLabel>
+              <FormLabel htmlFor="otherImages">
+                {t("addBook.otherImages")}
+              </FormLabel>
               <Input
                 id="otherImages"
                 type="file"
@@ -517,7 +561,7 @@ const AddBook = () => {
               />
             </FormControl>
             <FormControl>
-              <FormLabel htmlFor="pdf">PDF</FormLabel>
+              <FormLabel htmlFor="pdf">{t("addBook.pdf")}</FormLabel>
               <Input
                 id="pdf"
                 type="file"
@@ -527,7 +571,7 @@ const AddBook = () => {
             </FormControl>
           </SimpleGrid>
           <Button type="submit" colorScheme="teal" width="full" mt={4}>
-            Submit
+            {t("addBook.submit")}
           </Button>
         </Box>
       </Flex>

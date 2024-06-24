@@ -6,11 +6,13 @@ export interface Book {
   status: boolean;
 }
 
-export enum BookKnowledgeArea{
+export enum BookKnowledgeArea {
   Book = "Book",
   Article = "Article",
   Periodic = "Periodic",
   Reader = "Reader",
+  GraduationTheses = "GraduationTheses",
+  Dissertations = "Dissertations",
 }
 
 export interface User {
@@ -101,7 +103,11 @@ export interface BookDetails {
   mainImage: string; // Assuming this is a base64 string
   otherImages: string[]; // Assuming these are base64 strings
   pdf: string; // Assuming this is a base64 string
+  topic: string; // New field
+  barcode: string; // New field
+  locationInLibrary: string; // New field
 }
+
 
 
 export interface AdminPanelProps {

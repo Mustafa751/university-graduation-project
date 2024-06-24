@@ -1,3 +1,4 @@
+// src/components/RegisterForm.tsx
 import React, { useState } from "react";
 import {
   Flex,
@@ -10,6 +11,7 @@ import {
   Box,
   Select,
   IconButton,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
@@ -61,6 +63,10 @@ const RegisterForm: React.FC = () => {
     addresses: [true],
   });
 
+  const [errorMessages, setErrorMessages] = useState({
+    email: "",
+  });
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -79,10 +85,15 @@ const RegisterForm: React.FC = () => {
 
   const validateInput = (name: string, value: string, index?: number) => {
     let isValid = true;
+    let errorMessage = "";
+
     if (name === "fakNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
     } else if (name === "email") {
-      isValid = /\S+@\S+\.\S+/.test(value); // Simple email format check
+      isValid = /\S+@onlineedu\.tu-varna\.bg$/.test(value); // Email domain validation
+      if (!isValid) {
+        errorMessage = t("form.invalidEmailDomain");
+      }
     } else if (name === "phoneNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
     } else if (name.startsWith("address") && index !== undefined) {
@@ -92,7 +103,11 @@ const RegisterForm: React.FC = () => {
       setValidity({ ...validity, addresses: updatedValidity });
       return;
     }
+
     setValidity({ ...validity, [name]: isValid });
+    if (name === "email") {
+      setErrorMessages({ ...errorMessages, email: errorMessage });
+    }
   };
 
   const isFormValid = () => {
@@ -105,7 +120,7 @@ const RegisterForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!isFormValid()) {
-      alert("Please ensure all fields are correctly filled and valid.");
+      alert(t("form.invalidFields"));
       return;
     }
 
@@ -119,18 +134,18 @@ const RegisterForm: React.FC = () => {
       });
 
       if (response.ok) {
-        console.log("User created successfully");
-        alert("User created successfully");
+        console.log(t("form.userCreated"));
+        alert(t("form.userCreated"));
       } else {
-        throw new Error("Something went wrong with the request");
+        throw new Error(t("form.requestFailed"));
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        alert("Failed to create user: " + error.message);
-        console.error("Failed to create user:", error);
+        alert(t("form.creationFailed") + error.message);
+        console.error(t("form.creationFailed"), error);
       } else {
-        console.error("An unexpected error occurred:", error);
-        alert("An unexpected error occurred");
+        console.error(t("form.unexpectedError"), error);
+        alert(t("form.unexpectedError"));
       }
     }
   };
@@ -229,7 +244,7 @@ const RegisterForm: React.FC = () => {
                 />
                 {index > 0 && (
                   <IconButton
-                    aria-label="Remove address"
+                    aria-label={t("form.removeAddress")}
                     icon={<CloseIcon />}
                     size="sm"
                     mt="2"
@@ -246,7 +261,7 @@ const RegisterForm: React.FC = () => {
             >
               {t("form.addAddress")}
             </Button>
-            <FormControl id="email" isRequired>
+            <FormControl id="email" isRequired isInvalid={!validity.email}>
               <FormLabel>{t("form.email")}</FormLabel>
               <Input
                 type="text"
@@ -258,6 +273,9 @@ const RegisterForm: React.FC = () => {
                 bg="white"
                 color="teal.800"
               />
+              {!validity.email && (
+                <FormErrorMessage>{errorMessages.email}</FormErrorMessage>
+              )}
             </FormControl>
             <FormControl id="phoneNumber" isRequired>
               <FormLabel>{t("form.phoneNumber")}</FormLabel>

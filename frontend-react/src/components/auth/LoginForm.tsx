@@ -1,3 +1,4 @@
+// src/components/LoginForm.tsx
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import {
   Flex,
@@ -10,8 +11,10 @@ import {
 } from "@chakra-ui/react";
 import { useAuth } from "../auth/AuthContext"; // Make sure this path matches your file structure
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function LoginForm() {
+  const { t } = useTranslation();
   const toast = useToast();
   const [formData, setFormData] = useState({ email: "", fakNumber: "" });
   const { login, logout } = useAuth();
@@ -39,8 +42,8 @@ function LoginForm() {
       .catch((error: Error) => {
         console.error("Login failed:", error);
         toast({
-          title: "Login Failed",
-          description: "Wrong username or password",
+          title: t("loginForm.loginFailed"),
+          description: t("loginForm.wrongCredentials"),
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -70,32 +73,32 @@ function LoginForm() {
         mt="4"
       >
         <Heading as="h1" size="xl" color="teal.500" mb="4">
-          Вход
+          {t("loginForm.title")}
         </Heading>
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <FormControl id="email" isRequired mt="4">
-            <FormLabel>Email</FormLabel>
+            <FormLabel>{t("loginForm.emailLabel")}</FormLabel>
             <Input
               type="text"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              placeholder="Email"
+              placeholder={t("loginForm.emailPlaceholder")}
               variant="filled"
               bg="white"
               color="teal.800"
-              inputMode="numeric"
+              inputMode="email"
               mb="4"
             />
           </FormControl>
           <FormControl id="fakNumber" isRequired>
-            <FormLabel>Факултетен номер</FormLabel>
+            <FormLabel>{t("loginForm.fakNumberLabel")}</FormLabel>
             <Input
               type="text"
               name="fakNumber"
               value={formData.fakNumber}
               onChange={handleInputChange}
-              placeholder="Факултетен номер"
+              placeholder={t("loginForm.fakNumberPlaceholder")}
               variant="filled"
               bg="white"
               color="teal.800"
@@ -105,7 +108,7 @@ function LoginForm() {
           </FormControl>
           <Flex justify="center" mt="4" w="100%">
             <Button type="submit" colorScheme="teal">
-              Влизане
+              {t("loginForm.submitButton")}
             </Button>
           </Flex>
         </form>
