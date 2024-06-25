@@ -259,12 +259,6 @@ function BooksDisplay() {
               <option value="title">{t("booksDisplay.searchByTitle")}</option>
               <option value="author">{t("booksDisplay.searchByAuthor")}</option>
               <option value="topic">{t("booksDisplay.searchByTopic")}</option>
-              <option value="graduation-theses">
-                {t("booksDisplay.searchByGraduationTheses")}
-              </option>
-              <option value="dissertations">
-                {t("booksDisplay.searchByDissertations")}
-              </option>
             </Select>
           </InputGroup>
           <InputGroup width="300px">

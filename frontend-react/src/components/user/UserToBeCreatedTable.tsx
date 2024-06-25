@@ -72,6 +72,17 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
               />
             </Tooltip>
             <Tooltip
+              label={t("userTable.createAsOperator")}
+              aria-label="Create as Operator tooltip"
+            >
+              <IconButton
+                icon={<FiEdit />}
+                onClick={() => createUserWithRole(row.original, Roles.OPERATOR)}
+                mr={2}
+                aria-label="Create as Operator"
+              />
+            </Tooltip>
+            <Tooltip
               label={t("userTable.createAsAdmin")}
               aria-label="Create as Admin tooltip"
             >

@@ -87,14 +87,14 @@ const RegisterForm: React.FC = () => {
     let isValid = true;
     let errorMessage = "";
 
-    if (name === "fakNumber") {
+    if (name == "fakNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
-    } else if (name === "email") {
+    } else if (name == "email") {
       isValid = /\S+@onlineedu\.tu-varna\.bg$/.test(value); // Email domain validation
       if (!isValid) {
         errorMessage = t("form.invalidEmailDomain");
       }
-    } else if (name === "phoneNumber") {
+    } else if (name == "phoneNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
     } else if (name.startsWith("address") && index !== undefined) {
       isValid = value.trim() !== ""; // Ensure address is not empty
@@ -105,24 +105,13 @@ const RegisterForm: React.FC = () => {
     }
 
     setValidity({ ...validity, [name]: isValid });
-    if (name === "email") {
+    if (name == "email") {
       setErrorMessages({ ...errorMessages, email: errorMessage });
     }
   };
 
-  const isFormValid = () => {
-    return (
-      Object.values(validity).every((value) => value === true) &&
-      validity.addresses.every((value) => value === true)
-    );
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isFormValid()) {
-      alert(t("form.invalidFields"));
-      return;
-    }
 
     try {
       const response = await fetch("http://localhost:8089/api/usersCreate", {
@@ -361,13 +350,7 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <Button
-              type="submit"
-              colorScheme="teal"
-              mt="4"
-              disabled={!isFormValid()}
-              alignSelf="center"
-            >
+            <Button type="submit" colorScheme="teal" mt="4" alignSelf="center">
               {t("form.submit")}
             </Button>
           </form>

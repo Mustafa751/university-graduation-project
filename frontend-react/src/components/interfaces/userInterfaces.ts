@@ -57,6 +57,7 @@ export interface PersonalInfoProps {
   export enum Roles {
     STUDENT = "STUDENT",
     TEACHER = "TEACHER",
+    OPERATOR = "OPERATOR",
     ADMIN = "ADMIN"
 }
 

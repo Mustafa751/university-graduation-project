@@ -1,5 +1,4 @@
 // src/common/Navbar.tsx
-import React from "react";
 import {
   Flex,
   Heading,
@@ -82,7 +81,8 @@ function Navbar() {
             >
               {t("navbar.usersToBeCreated")}
             </Button>
-            {userRole?.toLowerCase() === "admin" && (
+            {(userRole?.toLowerCase() === "admin" ||
+              userRole?.toLowerCase() === "operator") && (
               <>
                 <Button
                   mr="2"
@@ -90,6 +90,27 @@ function Navbar() {
                   onClick={() => navigate("/admin-panel")}
                 >
                   {t("navbar.adminPanel")}
+                </Button>
+                <Button
+                  mr="2"
+                  colorScheme="teal"
+                  onClick={() => navigate("/statistics")}
+                >
+                  {t("navbar.statistics")}
+                </Button>
+                <Button
+                  mr="2"
+                  colorScheme="teal"
+                  onClick={() => navigate("/rent-out")}
+                >
+                  {t("navbar.rentOut")}
+                </Button>
+                <Button
+                  mr="2"
+                  colorScheme="teal"
+                  onClick={() => navigate("/edit-books")}
+                >
+                  {t("navbar.editBooks")}
                 </Button>
                 <IconButton
                   aria-label={t("navbar.scanQRCode")}
