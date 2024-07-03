@@ -1,4 +1,3 @@
-// src/components/LoginForm.tsx
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import {
   Flex,
@@ -53,14 +52,7 @@ function LoginForm() {
   };
 
   return (
-    <Flex
-      direction="column"
-      align="center"
-      justify="center"
-      minH="100vh"
-      minW="80vw"
-      mx="auto"
-    >
+    <Flex direction="column" align="center" justify="center" minH="100vh" p="4">
       <Flex
         direction="column"
         align="center"
@@ -68,8 +60,9 @@ function LoginForm() {
         bg="gray.100"
         p="6"
         borderRadius="xl"
-        w="600px"
-        h="500px"
+        w={{ base: "90%", md: "600px" }}
+        maxW="600px"
+        h={{ base: "auto", md: "500px" }}
         mt="4"
       >
         <Heading as="h1" size="xl" color="teal.500" mb="4">

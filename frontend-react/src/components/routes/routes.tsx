@@ -26,7 +26,7 @@ const AppRoutes = () => (
     <Route path="/" element={<Login />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
-    <Route path="/rentBook" element={<RentOutDisplay />} />
+    <Route path="/rent-out" element={<RentOutDisplay />} />
     <Route path="/admin-panel" element={<AdminPanel />} />
     <Route
       path="/user-books/:userId"

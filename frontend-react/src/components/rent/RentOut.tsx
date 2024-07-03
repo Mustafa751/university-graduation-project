@@ -146,6 +146,13 @@ const RentOut: React.FC = () => {
               value={selectedBook}
               onChange={(option) => setSelectedBook(option as Option)}
               placeholder={t("rentOut.bookPlaceholder")}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  background: inputBgColor,
+                  color: "black",
+                }),
+              }}
             />
           </FormControl>
           <FormControl isRequired>
@@ -156,6 +163,13 @@ const RentOut: React.FC = () => {
               value={selectedUser}
               onChange={(option) => setSelectedUser(option as Option)}
               placeholder={t("rentOut.userPlaceholder")}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  background: inputBgColor,
+                  color: "black",
+                }),
+              }}
             />
           </FormControl>
           <FormControl isRequired>

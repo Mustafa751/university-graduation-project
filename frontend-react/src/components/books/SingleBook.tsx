@@ -38,7 +38,12 @@ function BookDetails({ bookData }: { bookData: BookData }) {
       <Heading as="h2" size="lg" color="teal.500">
         {t("singleBook.detailsTitle")}
       </Heading>
-      <SimpleGrid columns={2} spacingX="40px" spacingY="20px" w="100%">
+      <SimpleGrid
+        columns={{ base: 1, md: 2 }}
+        spacingX="40px"
+        spacingY="20px"
+        w="100%"
+      >
         <GridItem>
           <Text fontWeight="bold">{t("singleBook.isbn")}:</Text>
           <Text>{bookData.isbn}</Text>
@@ -146,7 +151,7 @@ function SingleBook() {
             _hover={{ bg: hoverBgColor }}
           />
           <Image
-            src={`data:image/jpeg;base64,${bookData.images[currentImageIndex]}`}
+            src={`data:image/jpeg;base64,${bookData.images[currentImageIndex].base64Data}`}
             boxSize={imageSize}
             objectFit="cover"
             boxShadow="lg"

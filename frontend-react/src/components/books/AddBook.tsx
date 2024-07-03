@@ -1,4 +1,3 @@
-// src/components/AddBook.tsx
 import React, { ChangeEvent, useState, useEffect } from "react";
 import {
   Text,
@@ -223,7 +222,7 @@ const AddBook = () => {
           boxShadow="xl"
           width={{ base: "90%", md: "800px" }}
         >
-          <SimpleGrid columns={2} spacing={4}>
+          <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <FormControl>
               <FormLabel htmlFor="isbn">{t("addBook.isbn")}</FormLabel>
               <Input

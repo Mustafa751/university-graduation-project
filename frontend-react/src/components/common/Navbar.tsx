@@ -1,4 +1,3 @@
-// src/common/Navbar.tsx
 import {
   Flex,
   Heading,
@@ -12,8 +11,12 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
-import { FiUser, FiSun, FiMoon, FiCamera } from "react-icons/fi";
+import { FiUser, FiSun, FiMoon, FiCamera, FiMenu } from "react-icons/fi";
 import { useAuth } from "../auth/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -38,11 +41,17 @@ function Navbar() {
   };
 
   return (
-    <Flex justify="space-between" p="4" bg="teal.500" color="white">
+    <Flex
+      justify="space-between"
+      p="4"
+      bg="teal.500"
+      color="white"
+      align="center"
+    >
       <Heading as="h1" size="lg">
         {t("navbar.title")}
       </Heading>
-      <Flex alignItems="center">
+      <Flex alignItems="center" display={{ base: "none", md: "flex" }}>
         {!isLoggedIn ? (
           <>
             <Button
@@ -108,6 +117,13 @@ function Navbar() {
                 <Button
                   mr="2"
                   colorScheme="teal"
+                  onClick={() => navigate("/add-book")}
+                >
+                  {t("navbar.addBooks")}
+                </Button>
+                <Button
+                  mr="2"
+                  colorScheme="teal"
                   onClick={() => navigate("/edit-books")}
                 >
                   {t("navbar.editBooks")}
@@ -120,7 +136,7 @@ function Navbar() {
                   variant="ghost"
                   fontSize="20px"
                   mr="2"
-                  display={{ base: "block", md: "none" }} // Show only on mobile
+                  display={{ base: "none", md: "inline-flex" }} // Show only on desktop
                 />
               </>
             )}
@@ -160,6 +176,73 @@ function Navbar() {
         >
           EN
         </Button>
+      </Flex>
+      <Flex alignItems="center" display={{ base: "flex", md: "none" }}>
+        <Menu>
+          <MenuButton
+            as={IconButton}
+            icon={<FiMenu />}
+            variant="outline"
+            aria-label="Options"
+          />
+          <MenuList>
+            {!isLoggedIn ? (
+              <>
+                <MenuItem onClick={() => navigate("/login")}>
+                  {t("navbar.login")}
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/register")}>
+                  {t("navbar.register")}
+                </MenuItem>
+              </>
+            ) : (
+              <>
+                <MenuItem onClick={() => navigate(`/user-info/${userId}`)}>
+                  {t("navbar.userProfile")}
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/dashboard")}>
+                  {t("navbar.dashboard")}
+                </MenuItem>
+                <MenuItem onClick={() => navigate("/usersToBeCreated")}>
+                  {t("navbar.usersToBeCreated")}
+                </MenuItem>
+                {(userRole?.toLowerCase() === "admin" ||
+                  userRole?.toLowerCase() === "operator") && (
+                  <>
+                    <MenuItem onClick={() => navigate("/admin-panel")}>
+                      {t("navbar.adminPanel")}
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/statistics")}>
+                      {t("navbar.statistics")}
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/rent-out")}>
+                      {t("navbar.rentOut")}
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/add-book")}>
+                      {t("navbar.addBooks")}
+                    </MenuItem>
+                    <MenuItem onClick={() => navigate("/edit-books")}>
+                      {t("navbar.editBooks")}
+                    </MenuItem>
+                    <MenuItem onClick={onOpen}>
+                      {t("navbar.scanQRCode")}
+                    </MenuItem>
+                  </>
+                )}
+                <MenuItem onClick={logout}>{t("navbar.logout")}</MenuItem>
+                <MenuItem onClick={toggleColorMode}>
+                  {t(
+                    `navbar.toggle${
+                      colorMode === "light" ? "Dark" : "Light"
+                    }Mode`
+                  )}
+                </MenuItem>
+              </>
+            )}
+            <MenuItem onClick={() => changeLanguage("bg")}>BG</MenuItem>
+            <MenuItem onClick={() => changeLanguage("en")}>EN</MenuItem>
+          </MenuList>
+        </Menu>
       </Flex>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

@@ -227,7 +227,7 @@ const EditBook = () => {
           boxShadow="xl"
           width={{ base: "90%", md: "800px" }}
         >
-          <SimpleGrid columns={2} spacing={4}>
+          <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4}>
             <FormControl>
               <FormLabel htmlFor="isbn">{t("editBook.isbn")}</FormLabel>
               <Input

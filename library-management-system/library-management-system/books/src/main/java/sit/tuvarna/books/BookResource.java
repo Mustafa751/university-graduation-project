@@ -84,7 +84,6 @@ public class BookResource {
 
     @GET
     @Path("/rent-books")
-    @RolesAllowed("*")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getRentableBooks() {
         try {

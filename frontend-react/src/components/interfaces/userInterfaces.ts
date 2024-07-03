@@ -2,7 +2,7 @@
 export interface Book {
   id: number;
   name: string;
-  dateTaken: string;
+  date: string;
   status: boolean;
 }
 

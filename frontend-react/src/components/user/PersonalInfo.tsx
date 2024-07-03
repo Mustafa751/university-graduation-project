@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { EmailIcon, StarIcon, PhoneIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
-import { PersonalInfoProps } from "../interfaces/userInterfaces"; // Define this interface or adjust the import as needed
+import { PersonalInfoProps } from "../interfaces/userInterfaces"; // Adjust the import as needed
 
 const PersonalInfo: React.FC<PersonalInfoProps> = ({
   email,
@@ -22,26 +22,71 @@ const PersonalInfo: React.FC<PersonalInfoProps> = ({
 
   return (
     <VStack spacing={4} align="stretch">
-      <Box bg={bgColor} p={5} borderRadius="lg">
+      <Box
+        bg={bgColor}
+        p={{ base: 3, md: 5 }}
+        borderRadius="lg"
+        w="100%"
+        maxW="600px"
+        mx="auto"
+      >
         <HStack spacing={4}>
-          <Icon as={EmailIcon} color="purple.500" boxSize="24px" />
-          <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+          <Icon
+            as={EmailIcon}
+            color="purple.500"
+            boxSize={{ base: "20px", md: "24px" }}
+          />
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            fontWeight="semibold"
+            color={textColor}
+          >
             {t("personalInfo.email")}: {email}
           </Text>
         </HStack>
       </Box>
-      <Box bg={bgColor} p={5} borderRadius="lg">
+      <Box
+        bg={bgColor}
+        p={{ base: 3, md: 5 }}
+        borderRadius="lg"
+        w="100%"
+        maxW="600px"
+        mx="auto"
+      >
         <HStack spacing={4}>
-          <Icon as={PhoneIcon} color="purple.500" boxSize="24px" />
-          <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+          <Icon
+            as={PhoneIcon}
+            color="purple.500"
+            boxSize={{ base: "20px", md: "24px" }}
+          />
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            fontWeight="semibold"
+            color={textColor}
+          >
             {t("personalInfo.phoneNumber")}: {phoneNumber}
           </Text>
         </HStack>
       </Box>
-      <Box bg={bgColor} p={5} borderRadius="lg">
+      <Box
+        bg={bgColor}
+        p={{ base: 3, md: 5 }}
+        borderRadius="lg"
+        w="100%"
+        maxW="600px"
+        mx="auto"
+      >
         <HStack spacing={4}>
-          <Icon as={StarIcon} color="purple.500" boxSize="24px" />
-          <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+          <Icon
+            as={StarIcon}
+            color="purple.500"
+            boxSize={{ base: "20px", md: "24px" }}
+          />
+          <Text
+            fontSize={{ base: "md", md: "lg" }}
+            fontWeight="semibold"
+            color={textColor}
+          >
             {t("personalInfo.facultyNumber")}: {facultyNumber}
           </Text>
         </HStack>

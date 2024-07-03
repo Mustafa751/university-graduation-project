@@ -108,7 +108,7 @@ class UserResourceTest {
 
     @Test
     void testGetAllBooks() {
-        final UserBooksDTO userBooksDTO = new UserBooksDTO(1L, "bookName", true);
+        final UserBooksDTO userBooksDTO = new UserBooksDTO(1L, "bookName", LocalDateTime.now(),true);
         final List<UserBooksDTO> userBooksDTOS = List.of(userBooksDTO);
         when(mockUserService.getAllBooks(1L)).thenReturn(userBooksDTOS);
 

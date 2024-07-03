@@ -14,6 +14,7 @@ import {
   Text,
   Button,
   Tooltip,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useParams, useNavigate } from "react-router-dom";
 import { SendRequestOptions, sendRequest } from "../hooks/http";
@@ -38,6 +39,8 @@ const UserBooks: React.FC = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const padding = useBreakpointValue({ base: "2", md: "6" });
+  const fontSize = useBreakpointValue({ base: "md", md: "xl" });
 
   const fetchBooks = useCallback(async () => {
     const requestOptions: SendRequestOptions = {
@@ -89,9 +92,9 @@ const UserBooks: React.FC = () => {
 
   return (
     <Flex direction="column" minHeight="100vh">
-      <Box flex="1" py="6">
+      <Box flex="1" py={padding}>
         <Container maxWidth="container.xl">
-          <Text fontSize="xl" mb="4" fontWeight="bold" color={color}>
+          <Text fontSize={fontSize} mb="4" fontWeight="bold" color={color}>
             {t("userBooks.unreturnedBooks")}
           </Text>
           <TableContainer bg={bg} borderRadius="lg" boxShadow="base" p="4">

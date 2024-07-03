@@ -7,6 +7,8 @@ import {
   TabPanels,
   Tab,
   TabPanel,
+  Spinner,
+  Box,
 } from "@chakra-ui/react";
 import BooksTable from "./BooksTable";
 import PersonalInfo from "./PersonalInfo";
@@ -67,7 +69,9 @@ const UserInfoPage: React.FC = () => {
         <TabPanels py="10px">
           <TabPanel>
             {isLoadingBooks ? (
-              <div>{t("userInfo.loadingBooks")}</div>
+              <Box display="flex" justifyContent="center" alignItems="center">
+                <Spinner size="lg" color="purple.500" />
+              </Box>
             ) : (
               <BooksTable books={books} />
             )}

@@ -36,6 +36,7 @@
   "navbar.dashboard": "Табло",
   "navbar.usersToBeCreated": "Потребители за Създаване",
   "navbar.adminPanel": "Админ Панел",
+  "navbar.addBooks": "Добавяне на книга",
   "navbar.scanQRCode": "Сканиране на QR Код",
   "navbar.toggleDarkMode": "Превключване на Тъмен Режим",
   "navbar.toggleLightMode": "Превключване на Светъл Режим",

@@ -16,12 +16,15 @@ import sit.tuvarna.core.models.users.User;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static sit.tuvarna.core.models.enums.BookTopic.AIUXS;
 
 @Singleton
 public class BookService {
@@ -59,7 +62,7 @@ public class BookService {
         book.setDocumentType(BookKnowledgeArea.valueOf(getFormData(formParts, "documentType")));
         book.setInventoryNumber(getFormData(formParts, "inventoryNumber"));
         book.setSignature(getFormData(formParts, "signature"));
-        book.setTopic(BookTopic.valueOf(getFormData(formParts, "topic"))); // New field
+        book.setTopic(AIUXS); // New field
 
         book.setMainImage(extractBytes(formParts.get("mainImage").get(0)));
         processImages(formParts, book);
@@ -146,8 +149,8 @@ public class BookService {
         Rental rental = new Rental();
         rental.setBook(book);
         rental.setUser(user);
-        rental.setRentalStartDate(LocalDateTime.parse(rentRequest.getRentalStartDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        rental.setRentalEndDate(LocalDateTime.parse(rentRequest.getReturnDate(), DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        rental.setRentalStartDate(LocalDateTime.parse(rentRequest.getRentalStartDate(), DateTimeFormatter.ISO_DATE_TIME));
+        rental.setRentalEndDate(LocalDate.parse(rentRequest.getReturnDate(), DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay());
         rental.persist();
     }
 

@@ -7,6 +7,8 @@ import {
   Th,
   Td,
   TableContainer,
+  Box,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { Book } from "../interfaces/userInterfaces"; // Adjust the import path as needed
 import { Column, useTable } from "react-table";
@@ -20,6 +22,12 @@ const BooksTable: React.FC<BooksTableProps> = ({ books }) => {
   const { t } = useTranslation();
 
   const data = React.useMemo(() => books, [books]);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toISOString().split("T")[0];
+  };
+
   const columns: Column<Book>[] = React.useMemo(
     () => [
       {
@@ -28,7 +36,8 @@ const BooksTable: React.FC<BooksTableProps> = ({ books }) => {
       },
       {
         Header: t("booksTable.dateTaken"),
-        accessor: "dateTaken",
+        accessor: "date",
+        Cell: ({ value }) => formatDate(value),
       },
       {
         Header: t("booksTable.status"),
@@ -43,34 +52,41 @@ const BooksTable: React.FC<BooksTableProps> = ({ books }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({ columns, data });
 
+  const tableWidth = useBreakpointValue({ base: "100%", md: "auto" });
+
   return (
-    <TableContainer>
-      <Table {...getTableProps()}>
-        <Thead>
-          {headerGroups.map((headerGroup) => (
-            <Tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()} style={{ textAlign: "left" }}>
-                  {column.render("Header")}
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+    <Box overflowX="auto">
+      <TableContainer w={tableWidth}>
+        <Table {...getTableProps()}>
+          <Thead>
+            {headerGroups.map((headerGroup) => (
+              <Tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <Th
+                    {...column.getHeaderProps()}
+                    style={{ textAlign: "left" }}
+                  >
+                    {column.render("Header")}
+                  </Th>
                 ))}
               </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
-    </TableContainer>
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 

@@ -136,6 +136,7 @@ public class UserService {
                 .map(rental -> new UserBooksDTO(
                         rental.getBook().id,
                         rental.getBook().name,
+                        rental.getRentalStartDate(),
                         rental.getRentalEndDate().isAfter(LocalDateTime.now())
                 ))
                 .collect(Collectors.toList());

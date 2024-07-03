@@ -1,4 +1,3 @@
-// src/components/RegisterForm.tsx
 import React, { useState } from "react";
 import {
   Flex,
@@ -87,14 +86,14 @@ const RegisterForm: React.FC = () => {
     let isValid = true;
     let errorMessage = "";
 
-    if (name == "fakNumber") {
+    if (name === "fakNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
-    } else if (name == "email") {
+    } else if (name === "email") {
       isValid = /\S+@onlineedu\.tu-varna\.bg$/.test(value); // Email domain validation
       if (!isValid) {
         errorMessage = t("form.invalidEmailDomain");
       }
-    } else if (name == "phoneNumber") {
+    } else if (name === "phoneNumber") {
       isValid = /^\d+$/.test(value); // Simple numeric validation
     } else if (name.startsWith("address") && index !== undefined) {
       isValid = value.trim() !== ""; // Ensure address is not empty
@@ -105,7 +104,7 @@ const RegisterForm: React.FC = () => {
     }
 
     setValidity({ ...validity, [name]: isValid });
-    if (name == "email") {
+    if (name === "email") {
       setErrorMessages({ ...errorMessages, email: errorMessage });
     }
   };
@@ -152,17 +151,27 @@ const RegisterForm: React.FC = () => {
   };
 
   return (
-    <Flex direction="column" align="center" justify="center" h="100vh">
-      <VStack spacing="4" bg="gray.100" p="6" borderRadius="xl">
-        <Heading as="h1" size="xl" color="teal.500">
+    <Flex direction="column" align="center" justify="center" minH="100vh" p="4">
+      <VStack
+        spacing="4"
+        bg="gray.100"
+        p="6"
+        borderRadius="xl"
+        w={{ base: "full", md: "md" }}
+      >
+        <Heading as="h1" size="xl" color="teal.500" textAlign="center">
           {t("form.welcome")}
         </Heading>
-        <Heading as="h2" size="lg" color="teal.400">
+        <Heading as="h2" size="lg" color="teal.400" textAlign="center">
           {t("form.fillDetails")}
         </Heading>
-        <Box w="md">
+        <Box w="full">
           <form onSubmit={handleSubmit}>
-            <FormControl id="firstName" isRequired>
+            <FormControl
+              id="firstName"
+              isRequired
+              isInvalid={!validity.firstName}
+            >
               <FormLabel>{t("form.firstName")}</FormLabel>
               <Input
                 type="text"
@@ -175,7 +184,11 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="middleName" isRequired>
+            <FormControl
+              id="middleName"
+              isRequired
+              isInvalid={!validity.middleName}
+            >
               <FormLabel>{t("form.middleName")}</FormLabel>
               <Input
                 type="text"
@@ -188,7 +201,11 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="lastName" isRequired>
+            <FormControl
+              id="lastName"
+              isRequired
+              isInvalid={!validity.lastName}
+            >
               <FormLabel>{t("form.lastName")}</FormLabel>
               <Input
                 type="text"
@@ -201,7 +218,7 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="gender" isRequired>
+            <FormControl id="gender" isRequired isInvalid={!validity.gender}>
               <FormLabel>{t("form.gender")}</FormLabel>
               <Select
                 name="gender"
@@ -217,7 +234,12 @@ const RegisterForm: React.FC = () => {
               </Select>
             </FormControl>
             {formData.addresses.map((address, index) => (
-              <FormControl id={`address-${index}`} isRequired key={index}>
+              <FormControl
+                id={`address-${index}`}
+                isRequired
+                isInvalid={!validity.addresses[index]}
+                key={index}
+              >
                 <FormLabel>
                   {t("form.address")} {index + 1}
                 </FormLabel>
@@ -247,13 +269,14 @@ const RegisterForm: React.FC = () => {
               leftIcon={<AddIcon />}
               colorScheme="teal"
               mt="2"
+              w="full"
             >
               {t("form.addAddress")}
             </Button>
             <FormControl id="email" isRequired isInvalid={!validity.email}>
               <FormLabel>{t("form.email")}</FormLabel>
               <Input
-                type="text"
+                type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
@@ -266,7 +289,11 @@ const RegisterForm: React.FC = () => {
                 <FormErrorMessage>{errorMessages.email}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl id="phoneNumber" isRequired>
+            <FormControl
+              id="phoneNumber"
+              isRequired
+              isInvalid={!validity.phoneNumber}
+            >
               <FormLabel>{t("form.phoneNumber")}</FormLabel>
               <Input
                 type="text"
@@ -279,7 +306,11 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="category" isRequired>
+            <FormControl
+              id="category"
+              isRequired
+              isInvalid={!validity.category}
+            >
               <FormLabel>{t("form.category")}</FormLabel>
               <Select
                 name="category"
@@ -298,7 +329,7 @@ const RegisterForm: React.FC = () => {
                 <option value="other">{t("form.other")}</option>
               </Select>
             </FormControl>
-            <FormControl id="faculty" isRequired>
+            <FormControl id="faculty" isRequired isInvalid={!validity.faculty}>
               <FormLabel>{t("form.faculty")}</FormLabel>
               <Input
                 type="text"
@@ -311,7 +342,11 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="specialty" isRequired>
+            <FormControl
+              id="specialty"
+              isRequired
+              isInvalid={!validity.specialty}
+            >
               <FormLabel>{t("form.specialty")}</FormLabel>
               <Input
                 type="text"
@@ -324,7 +359,7 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="course" isRequired>
+            <FormControl id="course" isRequired isInvalid={!validity.course}>
               <FormLabel>{t("form.course")}</FormLabel>
               <Input
                 type="text"
@@ -337,7 +372,11 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <FormControl id="fakNumber" isRequired>
+            <FormControl
+              id="fakNumber"
+              isRequired
+              isInvalid={!validity.fakNumber}
+            >
               <FormLabel>{t("form.fakNumber")}</FormLabel>
               <Input
                 type="text"
@@ -350,7 +389,7 @@ const RegisterForm: React.FC = () => {
                 color="teal.800"
               />
             </FormControl>
-            <Button type="submit" colorScheme="teal" mt="4" alignSelf="center">
+            <Button type="submit" colorScheme="teal" mt="4" w="full">
               {t("form.submit")}
             </Button>
           </form>

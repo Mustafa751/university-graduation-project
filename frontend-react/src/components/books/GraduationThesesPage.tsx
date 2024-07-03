@@ -119,14 +119,14 @@ function GraduationThesesPage() {
   }, [searchTerm, debouncedSearch]);
 
   return (
-    <Flex direction="row" minH="100vh">
+    <Flex direction={{ base: "column", md: "row" }} minH="100vh">
       <Flex
         direction="column"
         bg="teal.500"
         color="white"
         p="6"
-        width="250px"
-        minH="100vh"
+        width={{ base: "100%", md: "250px" }}
+        minH={{ base: "auto", md: "100vh" }}
         boxShadow="md"
       >
         <VStack align="flex-start" spacing={4}>
@@ -164,7 +164,7 @@ function GraduationThesesPage() {
           </Button>
         </VStack>
       </Flex>
-      <Flex direction="column" align="center" minH="100vh" p="4" flex="1">
+      <Flex direction="column" align="center" flex="1" p="4">
         <Heading as="h1" size="xl" color="teal.500" mb="4">
           {t("graduationThesesPage.title")}
         </Heading>
@@ -174,7 +174,10 @@ function GraduationThesesPage() {
           paddingRight="4"
           paddingBottom="4"
         >
-          <InputGroup width="300px">
+          <InputGroup
+            width={{ base: "100%", md: "300px" }}
+            mb={{ base: 4, sm: 0 }}
+          >
             <Input
               placeholder={t("graduationThesesPage.searchPlaceholder")}
               value={searchTerm}
@@ -195,7 +198,7 @@ function GraduationThesesPage() {
           mt="4"
           overflowY="auto"
         >
-          <SimpleGrid columns={4} spacing={4}>
+          <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
             {(isSearching ? searchResults : books).map((book, index) => (
               <Book key={`${book.id}-${index}`} {...book} />
             ))}

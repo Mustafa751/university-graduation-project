@@ -1,4 +1,3 @@
-// src/components/AdminPanel.tsx
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -103,15 +102,15 @@ const AdminPanel: React.FC = () => {
   return (
     <Flex direction="column" minHeight="100vh">
       <Navbar />
-      <Box flex="1" py="6">
+      <Box flex="1" py="6" px={{ base: "4", md: "6" }}>
         <Container maxWidth="container.xl">
           <Text fontSize="xl" mb="4" fontWeight="bold" color={color}>
-            {t('navbar.userManagement')}
+            {t("navbar.userManagement")}
           </Text>
           <Flex justify="flex-end" mb="4">
-            <InputGroup maxWidth="400px">
+            <InputGroup maxWidth={{ base: "100%", md: "400px" }}>
               <Input
-                placeholder={t('form.searchFacultyNumber')}
+                placeholder={t("form.searchFacultyNumber")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -122,10 +121,10 @@ const AdminPanel: React.FC = () => {
             <Table variant="simple">
               <Thead>
                 <Tr>
-                  <Th>{t('form.email')}</Th>
-                  <Th>{t('form.fakNumber')}</Th>
-                  <Th>{t('form.phoneNumber')}</Th>
-                  <Th>{t('form.actions')}</Th>
+                  <Th>{t("form.email")}</Th>
+                  <Th>{t("form.fakNumber")}</Th>
+                  <Th>{t("form.phoneNumber")}</Th>
+                  <Th>{t("form.actions")}</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -135,26 +134,29 @@ const AdminPanel: React.FC = () => {
                     <Td>{user.facultyNumber}</Td>
                     <Td>{user.phoneNumber}</Td>
                     <Td>
-                      <Flex gap="2">
+                      <Flex gap="2" direction={{ base: "column", md: "row" }}>
                         <Tooltip
-                          label={t('form.viewBooks')}
-                          aria-label={t('form.viewBooks')}
+                          label={t("form.viewBooks")}
+                          aria-label={t("form.viewBooks")}
                         >
                           <Button
                             size="sm"
                             colorScheme="teal"
                             onClick={() => navigate(`/user-books/${user.id}`)}
                           >
-                            {t('form.viewBooks')}
+                            {t("form.viewBooks")}
                           </Button>
                         </Tooltip>
-                        <Tooltip label={t('form.deleteUser')} aria-label={t('form.deleteUser')}>
+                        <Tooltip
+                          label={t("form.deleteUser")}
+                          aria-label={t("form.deleteUser")}
+                        >
                           <Button
                             size="sm"
                             colorScheme="red"
                             onClick={() => handleDeleteUser(user.id)}
                           >
-                            {t('form.deleteUser')}
+                            {t("form.deleteUser")}
                           </Button>
                         </Tooltip>
                       </Flex>

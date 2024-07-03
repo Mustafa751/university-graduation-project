@@ -12,6 +12,7 @@ import {
   Td,
   TableContainer,
   useColorModeValue,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import Navbar from "../common/Navbar";
 import Footer from "../common/Footer";
@@ -44,7 +45,7 @@ const Statistics: React.FC = () => {
     [Roles.TEACHER]: 0,
     [Roles.ADMIN]: 0,
   });
-  const bg = useColorModeValue("white", "gray.800"); // Adapting based on theme
+  const bg = useColorModeValue("white", "gray.800");
   const color = useColorModeValue("gray.600", "white");
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -83,34 +84,49 @@ const Statistics: React.FC = () => {
     fetchUsers();
   }, [logout, navigate]);
 
+  const tableSize = useBreakpointValue({ base: "100%", md: "auto" });
+
   return (
     <Flex direction="column" minHeight="100vh">
       <Navbar />
       <Box flex="1" py="6">
         <Container maxWidth="container.xl">
-          <Text fontSize="xl" mb="4" fontWeight="bold" color={color}>
+          <Text
+            fontSize={{ base: "lg", md: "xl" }}
+            mb="4"
+            fontWeight="bold"
+            color={color}
+          >
             {t("statistics.userStatistics")}
           </Text>
-          <TableContainer bg={bg} borderRadius="lg" boxShadow="base" p="4">
-            <Table variant="simple">
-              <Thead>
-                <Tr>
-                  <Th>{t("statistics.totalUsers")}</Th>
-                  <Th>{t("statistics.students")}</Th>
-                  <Th>{t("statistics.teachers")}</Th>
-                  <Th>{t("statistics.admins")}</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                <Tr>
-                  <Td>{userCount}</Td>
-                  <Td>{roleCounts[Roles.STUDENT]}</Td>
-                  <Td>{roleCounts[Roles.TEACHER]}</Td>
-                  <Td>{roleCounts[Roles.ADMIN]}</Td>
-                </Tr>
-              </Tbody>
-            </Table>
-          </TableContainer>
+          <Box overflowX="auto">
+            <TableContainer
+              bg={bg}
+              borderRadius="lg"
+              boxShadow="base"
+              p={{ base: "2", md: "4" }}
+              w={tableSize}
+            >
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th>{t("statistics.totalUsers")}</Th>
+                    <Th>{t("statistics.students")}</Th>
+                    <Th>{t("statistics.teachers")}</Th>
+                    <Th>{t("statistics.admins")}</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  <Tr>
+                    <Td>{userCount}</Td>
+                    <Td>{roleCounts[Roles.STUDENT]}</Td>
+                    <Td>{roleCounts[Roles.TEACHER]}</Td>
+                    <Td>{roleCounts[Roles.ADMIN]}</Td>
+                  </Tr>
+                </Tbody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Container>
       </Box>
       <Footer />

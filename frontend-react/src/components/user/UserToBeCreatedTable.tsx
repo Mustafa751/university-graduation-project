@@ -9,6 +9,7 @@ import {
   TableContainer,
   IconButton,
   Tooltip,
+  Box,
 } from "@chakra-ui/react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { Roles, UserToBeCreated } from "../interfaces/userInterfaces"; // Adjust the import path as needed
@@ -144,31 +145,36 @@ const UserToBeCreatedTable: React.FC<UserToBeCreatedTableProps> = ({
 
   return (
     <TableContainer>
-      <Table {...getTableProps()}>
-        <Thead>
-          {headerGroups.map((headerGroup) => (
-            <Tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()} style={{ textAlign: "left" }}>
-                  {column.render("Header")}
-                </Th>
-              ))}
-            </Tr>
-          ))}
-        </Thead>
-        <Tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+      <Box overflowX="auto">
+        <Table {...getTableProps()} variant="striped" size="sm">
+          <Thead>
+            {headerGroups.map((headerGroup) => (
+              <Tr {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <Th
+                    {...column.getHeaderProps()}
+                    style={{ textAlign: "left" }}
+                  >
+                    {column.render("Header")}
+                  </Th>
                 ))}
               </Tr>
-            );
-          })}
-        </Tbody>
-      </Table>
+            ))}
+          </Thead>
+          <Tbody {...getTableBodyProps()}>
+            {rows.map((row) => {
+              prepareRow(row);
+              return (
+                <Tr {...row.getRowProps()}>
+                  {row.cells.map((cell) => (
+                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                  ))}
+                </Tr>
+              );
+            })}
+          </Tbody>
+        </Table>
+      </Box>
     </TableContainer>
   );
 };
