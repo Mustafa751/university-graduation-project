@@ -4,25 +4,17 @@ import {
   Button,
   IconButton,
   useColorMode,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   Menu,
   MenuButton,
   MenuList,
   MenuItem,
 } from "@chakra-ui/react";
-import { FiUser, FiSun, FiMoon, FiCamera, FiMenu } from "react-icons/fi";
+import { FiUser, FiSun, FiMoon, FiMenu } from "react-icons/fi";
 import { useAuth } from "../auth/AuthContext";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
-import QrScannerComponent from "../qrscanner/QrScannerComponent";
 
 function Navbar() {
   const { t, i18n } = useTranslation();
@@ -32,9 +24,6 @@ function Navbar() {
   const { isLoggedIn, userRole, userId } = useSelector(
     (state: RootState) => state.user
   );
-  console.log("Navbar state:", { isLoggedIn, userRole, userId });
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -43,217 +32,197 @@ function Navbar() {
   return (
     <Flex
       justify="space-between"
+      align="center"
       p="4"
       bg="teal.500"
       color="white"
-      align="center"
+      wrap="wrap"
     >
       <Heading as="h1" size="lg">
         {t("navbar.title")}
       </Heading>
-      <Flex alignItems="center" display={{ base: "none", md: "flex" }}>
-        {!isLoggedIn ? (
-          <>
-            <Button
-              mr="2"
-              colorScheme="teal"
-              onClick={() => navigate("/login")}
-            >
-              {t("navbar.login")}
-            </Button>
-            <Button colorScheme="teal" onClick={() => navigate("/register")}>
-              {t("navbar.register")}
-            </Button>
-          </>
-        ) : (
-          <>
-            <IconButton
-              aria-label={t("navbar.userProfile")}
-              icon={<FiUser />}
-              colorScheme="teal"
-              variant="ghost"
-              fontSize="20px"
-              mr="2"
-              onClick={() => navigate(`/user-info/${userId}`)}
-            />
-            <Button
-              mr="2"
-              colorScheme="teal"
-              onClick={() => navigate("/dashboard")}
-            >
-              {t("navbar.dashboard")}
-            </Button>
-            <Button
-              mr="2"
-              colorScheme="teal"
-              onClick={() => navigate("/usersToBeCreated")}
-            >
-              {t("navbar.usersToBeCreated")}
-            </Button>
-            {(userRole?.toLowerCase() === "admin" ||
-              userRole?.toLowerCase() === "operator") && (
-              <>
-                <Button
-                  mr="2"
-                  colorScheme="teal"
-                  onClick={() => navigate("/admin-panel")}
-                >
-                  {t("navbar.adminPanel")}
-                </Button>
-                <Button
-                  mr="2"
-                  colorScheme="teal"
-                  onClick={() => navigate("/statistics")}
-                >
-                  {t("navbar.statistics")}
-                </Button>
-                <Button
-                  mr="2"
-                  colorScheme="teal"
-                  onClick={() => navigate("/rent-out")}
-                >
-                  {t("navbar.rentOut")}
-                </Button>
-                <Button
-                  mr="2"
-                  colorScheme="teal"
-                  onClick={() => navigate("/add-book")}
-                >
-                  {t("navbar.addBooks")}
-                </Button>
-                <Button
-                  mr="2"
-                  colorScheme="teal"
-                  onClick={() => navigate("/edit-books")}
-                >
-                  {t("navbar.editBooks")}
-                </Button>
-                <IconButton
-                  aria-label={t("navbar.scanQRCode")}
-                  icon={<FiCamera />}
-                  onClick={onOpen}
-                  colorScheme="teal"
-                  variant="ghost"
-                  fontSize="20px"
-                  mr="2"
-                  display={{ base: "none", md: "inline-flex" }} // Show only on desktop
-                />
-              </>
-            )}
-            <IconButton
-              aria-label={t("navbar.logout")}
-              icon={<FiSun />}
-              onClick={logout}
-              colorScheme="teal"
-              variant="ghost"
-              fontSize="20px"
-              mr="2"
-            />
-            <IconButton
-              aria-label={t(
-                `navbar.toggle${colorMode === "light" ? "Dark" : "Light"}Mode`
+      <Flex ml="auto" alignItems="center">
+        <Flex display={{ base: "none", md: "flex" }} alignItems="center">
+          {!isLoggedIn ? (
+            <>
+              <Button
+                mr="2"
+                colorScheme="teal"
+                onClick={() => navigate("/login")}
+              >
+                {t("navbar.login")}
+              </Button>
+              <Button colorScheme="teal" onClick={() => navigate("/register")}>
+                {t("navbar.register")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                mr="2"
+                colorScheme="teal"
+                onClick={() => navigate("/dashboard")}
+              >
+                {t("navbar.dashboard")}
+              </Button>
+              <Button
+                mr="2"
+                colorScheme="teal"
+                onClick={() => navigate("/usersToBeCreated")}
+              >
+                {t("navbar.usersToBeCreated")}
+              </Button>
+              {(userRole?.toLowerCase() === "admin" ||
+                userRole?.toLowerCase() === "operator") && (
+                <>
+                  <Button
+                    mr="2"
+                    colorScheme="teal"
+                    onClick={() => navigate("/admin-panel")}
+                  >
+                    {t("navbar.adminPanel")}
+                  </Button>
+                  <Button
+                    mr="2"
+                    colorScheme="teal"
+                    onClick={() => navigate("/statistics")}
+                  >
+                    {t("navbar.statistics")}
+                  </Button>
+                  <Button
+                    mr="2"
+                    colorScheme="teal"
+                    onClick={() => navigate("/rent-out")}
+                  >
+                    {t("navbar.rentOut")}
+                  </Button>
+                  <Button
+                    mr="2"
+                    colorScheme="teal"
+                    onClick={() => navigate("/add-book")}
+                  >
+                    {t("navbar.addBooks")}
+                  </Button>
+                  <Button
+                    mr="2"
+                    colorScheme="teal"
+                    onClick={() => navigate("/edit-books")}
+                  >
+                    {t("navbar.editBooks")}
+                  </Button>
+                </>
               )}
-              icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
-              onClick={toggleColorMode}
-              colorScheme="teal"
-              variant="ghost"
-              fontSize="20px"
-              mr="2"
-            />
-          </>
-        )}
-        <Button
-          onClick={() => changeLanguage("bg")}
-          colorScheme="teal"
-          variant="ghost"
-        >
-          BG
-        </Button>
-        <Button
-          onClick={() => changeLanguage("en")}
-          colorScheme="teal"
-          variant="ghost"
-        >
-          EN
-        </Button>
-      </Flex>
-      <Flex alignItems="center" display={{ base: "flex", md: "none" }}>
-        <Menu>
-          <MenuButton
-            as={IconButton}
-            icon={<FiMenu />}
-            variant="outline"
-            aria-label="Options"
-          />
-          <MenuList>
-            {!isLoggedIn ? (
-              <>
-                <MenuItem onClick={() => navigate("/login")}>
-                  {t("navbar.login")}
-                </MenuItem>
-                <MenuItem onClick={() => navigate("/register")}>
-                  {t("navbar.register")}
-                </MenuItem>
-              </>
-            ) : (
-              <>
-                <MenuItem onClick={() => navigate(`/user-info/${userId}`)}>
-                  {t("navbar.userProfile")}
-                </MenuItem>
-                <MenuItem onClick={() => navigate("/dashboard")}>
-                  {t("navbar.dashboard")}
-                </MenuItem>
-                <MenuItem onClick={() => navigate("/usersToBeCreated")}>
-                  {t("navbar.usersToBeCreated")}
-                </MenuItem>
-                {(userRole?.toLowerCase() === "admin" ||
-                  userRole?.toLowerCase() === "operator") && (
-                  <>
-                    <MenuItem onClick={() => navigate("/admin-panel")}>
-                      {t("navbar.adminPanel")}
-                    </MenuItem>
-                    <MenuItem onClick={() => navigate("/statistics")}>
-                      {t("navbar.statistics")}
-                    </MenuItem>
-                    <MenuItem onClick={() => navigate("/rent-out")}>
-                      {t("navbar.rentOut")}
-                    </MenuItem>
-                    <MenuItem onClick={() => navigate("/add-book")}>
-                      {t("navbar.addBooks")}
-                    </MenuItem>
-                    <MenuItem onClick={() => navigate("/edit-books")}>
-                      {t("navbar.editBooks")}
-                    </MenuItem>
-                    <MenuItem onClick={onOpen}>
-                      {t("navbar.scanQRCode")}
-                    </MenuItem>
-                  </>
+              <IconButton
+                aria-label={t("navbar.userProfile")}
+                icon={<FiUser />}
+                colorScheme="teal"
+                variant="ghost"
+                fontSize="20px"
+                mr="2"
+                onClick={() => navigate(`/user-info/${userId}`)}
+              />
+              <IconButton
+                aria-label={t("navbar.logout")}
+                icon={<FiSun />}
+                onClick={logout}
+                colorScheme="teal"
+                variant="ghost"
+                fontSize="20px"
+                mr="2"
+              />
+              <IconButton
+                aria-label={t(
+                  `navbar.toggle${colorMode === "light" ? "Dark" : "Light"}Mode`
                 )}
-                <MenuItem onClick={logout}>{t("navbar.logout")}</MenuItem>
-                <MenuItem onClick={toggleColorMode}>
-                  {t(
-                    `navbar.toggle${
-                      colorMode === "light" ? "Dark" : "Light"
-                    }Mode`
+                icon={colorMode === "light" ? <FiMoon /> : <FiSun />}
+                onClick={toggleColorMode}
+                colorScheme="teal"
+                variant="ghost"
+                fontSize="20px"
+                mr="2"
+              />
+            </>
+          )}
+          <Button
+            onClick={() => changeLanguage("bg")}
+            colorScheme="teal"
+            variant="ghost"
+          >
+            BG
+          </Button>
+          <Button
+            onClick={() => changeLanguage("en")}
+            colorScheme="teal"
+            variant="ghost"
+          >
+            EN
+          </Button>
+        </Flex>
+        <Flex display={{ base: "flex", md: "none" }} alignItems="center">
+          <Menu>
+            <MenuButton
+              as={IconButton}
+              icon={<FiMenu />}
+              variant="outline"
+              aria-label="Options"
+            />
+            <MenuList>
+              {!isLoggedIn ? (
+                <>
+                  <MenuItem onClick={() => navigate("/login")}>
+                    {t("navbar.login")}
+                  </MenuItem>
+                  <MenuItem onClick={() => navigate("/register")}>
+                    {t("navbar.register")}
+                  </MenuItem>
+                </>
+              ) : (
+                <>
+                  <MenuItem onClick={() => navigate(`/user-info/${userId}`)}>
+                    {t("navbar.userProfile")}
+                  </MenuItem>
+                  <MenuItem onClick={() => navigate("/dashboard")}>
+                    {t("navbar.dashboard")}
+                  </MenuItem>
+                  <MenuItem onClick={() => navigate("/usersToBeCreated")}>
+                    {t("navbar.usersToBeCreated")}
+                  </MenuItem>
+                  {(userRole?.toLowerCase() === "admin" ||
+                    userRole?.toLowerCase() === "operator") && (
+                    <>
+                      <MenuItem onClick={() => navigate("/admin-panel")}>
+                        {t("navbar.adminPanel")}
+                      </MenuItem>
+                      <MenuItem onClick={() => navigate("/statistics")}>
+                        {t("navbar.statistics")}
+                      </MenuItem>
+                      <MenuItem onClick={() => navigate("/rent-out")}>
+                        {t("navbar.rentOut")}
+                      </MenuItem>
+                      <MenuItem onClick={() => navigate("/add-book")}>
+                        {t("navbar.addBooks")}
+                      </MenuItem>
+                      <MenuItem onClick={() => navigate("/edit-books")}>
+                        {t("navbar.editBooks")}
+                      </MenuItem>
+                    </>
                   )}
-                </MenuItem>
-              </>
-            )}
-            <MenuItem onClick={() => changeLanguage("bg")}>BG</MenuItem>
-            <MenuItem onClick={() => changeLanguage("en")}>EN</MenuItem>
-          </MenuList>
-        </Menu>
+                  <MenuItem onClick={logout}>{t("navbar.logout")}</MenuItem>
+                  <MenuItem onClick={toggleColorMode}>
+                    {t(
+                      `navbar.toggle${
+                        colorMode === "light" ? "Dark" : "Light"
+                      }Mode`
+                    )}
+                  </MenuItem>
+                </>
+              )}
+              <MenuItem onClick={() => changeLanguage("bg")}>BG</MenuItem>
+              <MenuItem onClick={() => changeLanguage("en")}>EN</MenuItem>
+            </MenuList>
+          </Menu>
+        </Flex>
       </Flex>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{t("navbar.scanQRCode")}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <QrScannerComponent onClose={onClose} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </Flex>
   );
 }
